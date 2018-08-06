@@ -766,6 +766,7 @@ typedef struct
 
 MAL_ALIGNED_STRUCT(MAL_SIMD_ALIGNMENT) mal_dsp
 {
+    mal_dsp_config config;
     mal_dsp_read_proc onRead;
     void* pUserData;
     mal_format_converter formatConverterIn;             // For converting data to f32 in preparation for further processing.
@@ -25329,6 +25330,7 @@ mal_result mal_dsp_init(const mal_dsp_config* pConfig, mal_dsp* pDSP)
     }
 
     mal_zero_object(pDSP);
+    pDSP->config = *pConfig;
     pDSP->onRead = pConfig->onRead;
     pDSP->pUserData = pConfig->pUserData;
     pDSP->isDynamicSampleRateAllowed = pConfig->allowDynamicSampleRate;

@@ -218,7 +218,7 @@
 //
 // #define MAL_NO_DEVICE_IO
 //   Disables playback and recording. This will disable mal_context and mal_device APIs. This is useful if you only want to
-//   use mini_al's data conversion and/or decoding APIs. 
+//   use mini_al's data conversion and/or decoding APIs.
 //
 // #define MAL_NO_STDIO
 //   Disables file IO APIs.
@@ -1660,12 +1660,12 @@ struct mal_context
         {
             mal_handle hCoreFoundation;
             mal_proc CFStringGetCString;
-            
+
             mal_handle hCoreAudio;
             mal_proc AudioObjectGetPropertyData;
             mal_proc AudioObjectGetPropertyDataSize;
             mal_proc AudioObjectSetPropertyData;
-            
+
             mal_handle hAudioUnit;  // Could possibly be set to AudioToolbox on later versions of macOS.
             mal_proc AudioComponentFindNext;
             mal_proc AudioComponentInstanceDispose;
@@ -3078,12 +3078,12 @@ mal_uint32 g_malStandardSampleRatePriorities[] = {
 mal_format g_malFormatPriorities[] = {
     mal_format_s16,         // Most common
     mal_format_f32,
-    
+
     //mal_format_s24_32,    // Clean alignment
     mal_format_s32,
-    
+
     mal_format_s24,         // Unclean alignment
-    
+
     mal_format_u8           // Low quality
 };
 
@@ -3389,10 +3389,10 @@ static MAL_INLINE unsigned int mal_count_set_bits(unsigned int x)
         if (x & 1) {
             count += 1;
         }
-        
+
         x = x >> 1;
     }
-    
+
     return count;
 }
 
@@ -4454,12 +4454,12 @@ float mal_calculate_cpu_speed_factor()
     pOutputFrames = (float*)(pInputFrames + inputDataSize);
 
 
-    
+
 
     mal_calculate_cpu_speed_factor_data data;
     data.pInputFrames = pInputFrames;
     data.framesRemaining = sampleRateIn;
-    
+
     mal_dsp_config config = mal_dsp_config_init(mal_format_u8, channelsIn, sampleRateIn, mal_format_f32, channelsOut, sampleRateOut, mal_calculate_cpu_speed_factor__on_read, &data);
 
     // Use linear sample rate conversion because it's the simplest and least likely to cause skewing as a result of tweaks to default
@@ -4544,7 +4544,7 @@ const char* mal_log_level_to_string(mal_uint32 logLevel)
 void mal_log(mal_context* pContext, mal_device* pDevice, mal_uint32 logLevel, const char* message)
 {
     if (pContext == NULL) return;
-    
+
 #if defined(MAL_LOG_LEVEL)
     if (logLevel <= MAL_LOG_LEVEL) {
     #if defined(MAL_DEBUG_OUTPUT)
@@ -4552,7 +4552,7 @@ void mal_log(mal_context* pContext, mal_device* pDevice, mal_uint32 logLevel, co
             printf("%s: %s", mal_log_level_to_string(logLevel), message);
         }
     #endif
-    
+
         mal_log_proc onLog = pContext->config.onLog;
         if (onLog) {
             onLog(pContext, pDevice, message);
@@ -6005,7 +6005,7 @@ mal_result mal_context_get_device_info_from_MMDevice__wasapi(mal_context* pConte
         hr = mal_IMMDevice_Activate(pMMDevice, &MAL_IID_IAudioClient, CLSCTX_ALL, NULL, (void**)&pAudioClient);
         if (SUCCEEDED(hr)) {
             mal_result result = mal_context_get_device_info_from_IAudioClient__wasapi(pContext, pMMDevice, pAudioClient, shareMode, pInfo);
-            
+
             mal_IAudioClient_Release(pAudioClient);
             return result;
         } else {
@@ -6186,7 +6186,7 @@ mal_result mal_device_init__wasapi(mal_context* pContext, mal_device_type type, 
     MAL_AUDCLNT_SHAREMODE shareMode = MAL_AUDCLNT_SHAREMODE_SHARED;
     WAVEFORMATEXTENSIBLE* pBestFormatTemp = NULL;
     MAL_REFERENCE_TIME bufferDurationInMicroseconds;
-    
+
 
 #ifdef MAL_WIN32_DESKTOP
     mal_IMMDevice* pMMDevice = NULL;
@@ -6374,7 +6374,7 @@ mal_result mal_device_init__wasapi(mal_context* pContext, mal_device_type type, 
                 break;
             }
         }
-        
+
         if (hr == MAL_AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED) {
             UINT bufferSizeInFrames;
             hr = mal_IAudioClient_GetBufferSize((mal_IAudioClient*)pDevice->wasapi.pAudioClient, &bufferSizeInFrames);
@@ -8355,7 +8355,7 @@ mal_result mal_context_get_device_info_from_WAVECAPS(mal_context* pContext, MAL_
         }
     }
 
-    
+
     WORD bitsPerSample;
     DWORD sampleRate;
     mal_result result = mal_get_best_info_from_formats_flags__winmm(pCaps->dwFormats, pCaps->wChannels, &bitsPerSample, &sampleRate);
@@ -9542,7 +9542,7 @@ mal_result mal_context_open_pcm__alsa(mal_context* pContext, mal_share_mode shar
 
     mal_snd_pcm_t* pPCM = NULL;
 
-    
+
 
     mal_snd_pcm_stream_t stream = (type == mal_device_type_playback) ? MAL_SND_PCM_STREAM_PLAYBACK : MAL_SND_PCM_STREAM_CAPTURE;
     int openMode = MAL_SND_PCM_NO_AUTO_RESAMPLE | MAL_SND_PCM_NO_AUTO_CHANNELS | MAL_SND_PCM_NO_AUTO_FORMAT;
@@ -12575,7 +12575,7 @@ mal_result mal_context_init__pulse(mal_context* pContext)
     pContext->onDeviceBreakMainLoop = mal_device__break_main_loop__pulse;
     pContext->onDeviceMainLoop      = mal_device__main_loop__pulse;
 
-    
+
     // Although we have found the libpulse library, it doesn't necessarily mean PulseAudio is useable. We need to initialize
     // and connect a dummy PulseAudio context to test PulseAudio's usability.
     mal_pa_mainloop* pMainLoop = ((mal_pa_mainloop_new_proc)pContext->pulse.pa_mainloop_new)();
@@ -13020,7 +13020,7 @@ mal_result mal_device__stop_backend__jack(mal_device* pDevice)
     if (((mal_jack_deactivate_proc)pContext->jack.jack_deactivate)((mal_jack_client_t*)pDevice->jack.pClient) != 0) {
         return mal_post_error(pDevice, MAL_LOG_LEVEL_ERROR, "[JACK] An error occurred when deactivating the JACK client.", MAL_ERROR);
     }
-    
+
     mal_device__set_state(pDevice, MAL_STATE_STOPPED);
     mal_stop_proc onStop = pDevice->onStop;
     if (onStop) {
@@ -13348,7 +13348,7 @@ mal_channel mal_channel_from_AudioChannelLabel(AudioChannelLabel label)
         case kAudioChannelLabel_Discrete_14:          return MAL_CHANNEL_AUX_14;
         case kAudioChannelLabel_Discrete_15:          return MAL_CHANNEL_AUX_15;
         case kAudioChannelLabel_Discrete_65535:       return MAL_CHANNEL_NONE;
-        
+
     #if 0   // Introduced in a later version of macOS.
         case kAudioChannelLabel_HOA_ACN:              return MAL_CHANNEL_NONE;
         case kAudioChannelLabel_HOA_ACN_0:            return MAL_CHANNEL_AUX_0;
@@ -13369,7 +13369,7 @@ mal_channel mal_channel_from_AudioChannelLabel(AudioChannelLabel label)
         case kAudioChannelLabel_HOA_ACN_15:           return MAL_CHANNEL_AUX_15;
         case kAudioChannelLabel_HOA_ACN_65024:        return MAL_CHANNEL_NONE;
     #endif
-        
+
         default:                                      return MAL_CHANNEL_NONE;
     }
 }
@@ -13378,14 +13378,14 @@ mal_result mal_format_from_AudioStreamBasicDescription(const AudioStreamBasicDes
 {
     mal_assert(pDescription != NULL);
     mal_assert(pFormatOut != NULL);
-    
+
     *pFormatOut = mal_format_unknown;   // Safety.
-    
+
     // There's a few things mini_al doesn't support.
     if (pDescription->mFormatID != kAudioFormatLinearPCM) {
         return MAL_FORMAT_NOT_SUPPORTED;
     }
-    
+
     // We don't support any non-packed formats that are aligned high.
     if ((pDescription->mFormatFlags & kLinearPCMFormatFlagIsAlignedHigh) != 0) {
         return MAL_FORMAT_NOT_SUPPORTED;
@@ -13395,7 +13395,7 @@ mal_result mal_format_from_AudioStreamBasicDescription(const AudioStreamBasicDes
     if ((mal_is_little_endian() && (pDescription->mFormatFlags & kAudioFormatFlagIsBigEndian) != 0) || (mal_is_big_endian() && (pDescription->mFormatFlags & kAudioFormatFlagIsBigEndian) == 0)) {
         return MAL_FORMAT_NOT_SUPPORTED;
     }
-    
+
     // We are not currently supporting non-interleaved formats (this will be added in a future version of mini_al).
     //if ((pDescription->mFormatFlags & kAudioFormatFlagIsNonInterleaved) != 0) {
     //    return MAL_FORMAT_NOT_SUPPORTED;
@@ -13434,7 +13434,7 @@ mal_result mal_format_from_AudioStreamBasicDescription(const AudioStreamBasicDes
             }
         }
     }
-    
+
     // Getting here means the format is not supported.
     return MAL_FORMAT_NOT_SUPPORTED;
 }
@@ -13450,7 +13450,7 @@ mal_result mal_get_device_object_ids__coreaudio(mal_context* pContext, UInt32* p
     // Safety.
     *pDeviceCount = 0;
     *ppDeviceObjectIDs = NULL;
-    
+
     AudioObjectPropertyAddress propAddressDevices;
     propAddressDevices.mSelector = kAudioHardwarePropertyDevices;
     propAddressDevices.mScope    = kAudioObjectPropertyScopeGlobal;
@@ -13461,18 +13461,18 @@ mal_result mal_get_device_object_ids__coreaudio(mal_context* pContext, UInt32* p
     if (status != noErr) {
         return mal_result_from_OSStatus(status);
     }
-    
+
     AudioObjectID* pDeviceObjectIDs = (AudioObjectID*)mal_malloc(deviceObjectsDataSize);
     if (pDeviceObjectIDs == NULL) {
         return MAL_OUT_OF_MEMORY;
     }
-    
+
     status = ((mal_AudioObjectGetPropertyData_proc)pContext->coreaudio.AudioObjectGetPropertyData)(kAudioObjectSystemObject, &propAddressDevices, 0, NULL, &deviceObjectsDataSize, pDeviceObjectIDs);
     if (status != noErr) {
         mal_free(pDeviceObjectIDs);
         return mal_result_from_OSStatus(status);
     }
-    
+
     *pDeviceCount = deviceObjectsDataSize / sizeof(AudioObjectID);
     *ppDeviceObjectIDs = pDeviceObjectIDs;
     return MAL_SUCCESS;
@@ -13492,7 +13492,7 @@ mal_result mal_get_AudioObject_uid_as_CFStringRef(mal_context* pContext, AudioOb
     if (status != noErr) {
         return mal_result_from_OSStatus(status);
     }
-    
+
     return MAL_SUCCESS;
 }
 
@@ -13505,11 +13505,11 @@ mal_result mal_get_AudioObject_uid(mal_context* pContext, AudioObjectID objectID
     if (result != MAL_SUCCESS) {
         return result;
     }
-    
+
     if (!((mal_CFStringGetCString_proc)pContext->coreaudio.CFStringGetCString)(uid, bufferOut, bufferSize, kCFStringEncodingUTF8)) {
         return MAL_ERROR;
     }
-    
+
     return MAL_SUCCESS;
 }
 
@@ -13528,11 +13528,11 @@ mal_result mal_get_AudioObject_name(mal_context* pContext, AudioObjectID objectI
     if (status != noErr) {
         return mal_result_from_OSStatus(status);
     }
-    
+
     if (!((mal_CFStringGetCString_proc)pContext->coreaudio.CFStringGetCString)(deviceName, bufferOut, bufferSize, kCFStringEncodingUTF8)) {
         return MAL_ERROR;
     }
-    
+
     return MAL_SUCCESS;
 }
 
@@ -13546,18 +13546,18 @@ mal_bool32 mal_does_AudioObject_support_scope(mal_context* pContext, AudioObject
     propAddress.mSelector = kAudioDevicePropertyStreamConfiguration;
     propAddress.mScope    = scope;
     propAddress.mElement  = kAudioObjectPropertyElementMaster;
-    
+
     UInt32 dataSize;
     OSStatus status = ((mal_AudioObjectGetPropertyDataSize_proc)pContext->coreaudio.AudioObjectGetPropertyDataSize)(deviceObjectID, &propAddress, 0, NULL, &dataSize);
     if (status != noErr) {
         return MAL_FALSE;
     }
-    
+
     AudioBufferList* pBufferList = (AudioBufferList*)mal_malloc(dataSize);
     if (pBufferList == NULL) {
         return MAL_FALSE;   // Out of memory.
     }
-    
+
     status = ((mal_AudioObjectGetPropertyData_proc)pContext->coreaudio.AudioObjectGetPropertyData)(deviceObjectID, &propAddress, 0, NULL, &dataSize, pBufferList);
     if (status != noErr) {
         mal_free(pBufferList);
@@ -13568,7 +13568,7 @@ mal_bool32 mal_does_AudioObject_support_scope(mal_context* pContext, AudioObject
     if (pBufferList->mNumberBuffers > 0) {
         isSupported = MAL_TRUE;
     }
-    
+
     mal_free(pBufferList);
     return isSupported;
 }
@@ -13589,31 +13589,31 @@ mal_result mal_get_AudioObject_stream_descriptions(mal_context* pContext, AudioO
     mal_assert(pContext != NULL);
     mal_assert(pDescriptionCount != NULL);
     mal_assert(ppDescriptions != NULL);
-    
+
     // TODO: Experiment with kAudioStreamPropertyAvailablePhysicalFormats instead of (or in addition to) kAudioStreamPropertyAvailableVirtualFormats. My
     //       MacBook Pro uses s24/32 format, however, which mini_al does not currently support.
     AudioObjectPropertyAddress propAddress;
     propAddress.mSelector = kAudioStreamPropertyAvailableVirtualFormats; //kAudioStreamPropertyAvailablePhysicalFormats;
     propAddress.mScope    = (deviceType == mal_device_type_playback) ? kAudioObjectPropertyScopeOutput : kAudioObjectPropertyScopeInput;
     propAddress.mElement  = kAudioObjectPropertyElementMaster;
-    
+
     UInt32 dataSize;
     OSStatus status = ((mal_AudioObjectGetPropertyDataSize_proc)pContext->coreaudio.AudioObjectGetPropertyDataSize)(deviceObjectID, &propAddress, 0, NULL, &dataSize);
     if (status != noErr) {
         return mal_result_from_OSStatus(status);
     }
-    
+
     AudioStreamRangedDescription* pDescriptions = (AudioStreamRangedDescription*)mal_malloc(dataSize);
     if (pDescriptions == NULL) {
         return MAL_OUT_OF_MEMORY;
     }
-    
+
     status = ((mal_AudioObjectGetPropertyData_proc)pContext->coreaudio.AudioObjectGetPropertyData)(deviceObjectID, &propAddress, 0, NULL, &dataSize, pDescriptions);
     if (status != noErr) {
         mal_free(pDescriptions);
         return mal_result_from_OSStatus(status);
     }
-    
+
     *pDescriptionCount = dataSize / sizeof(*pDescriptions);
     *ppDescriptions = pDescriptions;
     return MAL_SUCCESS;
@@ -13625,31 +13625,31 @@ mal_result mal_get_AudioObject_channel_layout(mal_context* pContext, AudioObject
 {
     mal_assert(pContext != NULL);
     mal_assert(ppChannelLayout != NULL);
-    
+
     *ppChannelLayout = NULL;    // Safety.
-    
+
     AudioObjectPropertyAddress propAddress;
     propAddress.mSelector = kAudioDevicePropertyPreferredChannelLayout;
     propAddress.mScope    = (deviceType == mal_device_type_playback) ? kAudioObjectPropertyScopeOutput : kAudioObjectPropertyScopeInput;
     propAddress.mElement  = kAudioObjectPropertyElementMaster;
-    
+
     UInt32 dataSize;
     OSStatus status = ((mal_AudioObjectGetPropertyDataSize_proc)pContext->coreaudio.AudioObjectGetPropertyDataSize)(deviceObjectID, &propAddress, 0, NULL, &dataSize);
     if (status != noErr) {
         return mal_result_from_OSStatus(status);
     }
-    
+
     AudioChannelLayout* pChannelLayout = (AudioChannelLayout*)mal_malloc(dataSize);
     if (pChannelLayout == NULL) {
         return MAL_OUT_OF_MEMORY;
     }
-    
+
     status = ((mal_AudioObjectGetPropertyData_proc)pContext->coreaudio.AudioObjectGetPropertyData)(deviceObjectID, &propAddress, 0, NULL, &dataSize, pChannelLayout);
     if (status != noErr) {
         mal_free(pChannelLayout);
         return mal_result_from_OSStatus(status);
     }
-    
+
     *ppChannelLayout = pChannelLayout;
     return MAL_SUCCESS;
 }
@@ -13658,7 +13658,7 @@ mal_result mal_get_AudioObject_channel_count(mal_context* pContext, AudioObjectI
 {
     mal_assert(pContext != NULL);
     mal_assert(pChannelCount != NULL);
-    
+
     *pChannelCount = 0; // Safety.
 
     AudioChannelLayout* pChannelLayout;
@@ -13666,7 +13666,7 @@ mal_result mal_get_AudioObject_channel_count(mal_context* pContext, AudioObjectI
     if (result != MAL_SUCCESS) {
         return result;
     }
-    
+
     if (pChannelLayout->mChannelLayoutTag == kAudioChannelLayoutTag_UseChannelDescriptions) {
         *pChannelCount = pChannelLayout->mNumberChannelDescriptions;
     } else if (pChannelLayout->mChannelLayoutTag == kAudioChannelLayoutTag_UseChannelBitmap) {
@@ -13674,7 +13674,7 @@ mal_result mal_get_AudioObject_channel_count(mal_context* pContext, AudioObjectI
     } else {
         *pChannelCount = AudioChannelLayoutTag_GetNumberOfChannels(pChannelLayout->mChannelLayoutTag);
     }
-    
+
     mal_free(pChannelLayout);
     return MAL_SUCCESS;
 }
@@ -13682,7 +13682,7 @@ mal_result mal_get_AudioObject_channel_count(mal_context* pContext, AudioObjectI
 mal_result mal_get_channel_map_from_AudioChannelLayout(AudioChannelLayout* pChannelLayout, mal_channel channelMap[MAL_MAX_CHANNELS])
 {
     mal_assert(pChannelLayout != NULL);
-    
+
     if (pChannelLayout->mChannelLayoutTag == kAudioChannelLayoutTag_UseChannelDescriptions) {
         for (UInt32 iChannel = 0; iChannel < pChannelLayout->mNumberChannelDescriptions; ++iChannel) {
             channelMap[iChannel] = mal_channel_from_AudioChannelLabel(pChannelLayout->mChannelDescriptions[iChannel].mChannelLabel);
@@ -13718,7 +13718,7 @@ mal_result mal_get_channel_map_from_AudioChannelLayout(AudioChannelLayout* pChan
             {
                 mal_get_standard_channel_map(mal_standard_channel_map_default, channelCount, channelMap);
             } break;
-            
+
             case kAudioChannelLayoutTag_Octagonal:
             {
                 channelMap[7] = MAL_CHANNEL_SIDE_RIGHT;
@@ -13739,34 +13739,34 @@ mal_result mal_get_channel_map_from_AudioChannelLayout(AudioChannelLayout* pChan
                 channelMap[1] = MAL_CHANNEL_RIGHT;
                 channelMap[0] = MAL_CHANNEL_LEFT;
             } break;
-            
+
             // TODO: Add support for more tags here.
-        
+
             default:
             {
                 mal_get_standard_channel_map(mal_standard_channel_map_default, channelCount, channelMap);
             } break;
         }
     }
-    
+
     return MAL_SUCCESS;
 }
 
 mal_result mal_get_AudioObject_channel_map(mal_context* pContext, AudioObjectID deviceObjectID, mal_device_type deviceType, mal_channel channelMap[MAL_MAX_CHANNELS])
 {
     mal_assert(pContext != NULL);
-    
+
     AudioChannelLayout* pChannelLayout;
     mal_result result = mal_get_AudioObject_channel_layout(pContext, deviceObjectID, deviceType, &pChannelLayout);
     if (result != MAL_SUCCESS) {
         return result;  // Rather than always failing here, would it be more robust to simply assume a default?
     }
-    
+
     result = mal_get_channel_map_from_AudioChannelLayout(pChannelLayout, channelMap);
     if (result != MAL_SUCCESS) {
         return result;
     }
-    
+
     return result;
 }
 
@@ -13775,33 +13775,33 @@ mal_result mal_get_AudioObject_sample_rates(mal_context* pContext, AudioObjectID
     mal_assert(pContext != NULL);
     mal_assert(pSampleRateRangesCount != NULL);
     mal_assert(ppSampleRateRanges != NULL);
-  
+
     // Safety.
     *pSampleRateRangesCount = 0;
     *ppSampleRateRanges = NULL;
-    
+
     AudioObjectPropertyAddress propAddress;
     propAddress.mSelector = kAudioDevicePropertyAvailableNominalSampleRates;
     propAddress.mScope    = (deviceType == mal_device_type_playback) ? kAudioObjectPropertyScopeOutput : kAudioObjectPropertyScopeInput;
     propAddress.mElement  = kAudioObjectPropertyElementMaster;
-    
+
     UInt32 dataSize;
     OSStatus status = ((mal_AudioObjectGetPropertyDataSize_proc)pContext->coreaudio.AudioObjectGetPropertyDataSize)(deviceObjectID, &propAddress, 0, NULL, &dataSize);
     if (status != noErr) {
         return mal_result_from_OSStatus(status);
     }
-    
+
     AudioValueRange* pSampleRateRanges = (AudioValueRange*)mal_malloc(dataSize);
     if (pSampleRateRanges == NULL) {
         return MAL_OUT_OF_MEMORY;
     }
-    
+
     status = ((mal_AudioObjectGetPropertyData_proc)pContext->coreaudio.AudioObjectGetPropertyData)(deviceObjectID, &propAddress, 0, NULL, &dataSize, pSampleRateRanges);
     if (status != noErr) {
         mal_free(pSampleRateRanges);
         return mal_result_from_OSStatus(status);
     }
-    
+
     *pSampleRateRangesCount = dataSize / sizeof(*pSampleRateRanges);
     *ppSampleRateRanges = pSampleRateRanges;
     return MAL_SUCCESS;
@@ -13811,21 +13811,21 @@ mal_result mal_get_AudioObject_get_closest_sample_rate(mal_context* pContext, Au
 {
     mal_assert(pContext != NULL);
     mal_assert(pSampleRateOut != NULL);
-    
+
     *pSampleRateOut = 0;    // Safety.
-    
+
     UInt32 sampleRateRangeCount;
     AudioValueRange* pSampleRateRanges;
     mal_result result = mal_get_AudioObject_sample_rates(pContext, deviceObjectID, deviceType, &sampleRateRangeCount, &pSampleRateRanges);
     if (result != MAL_SUCCESS) {
         return result;
     }
-    
+
     if (sampleRateRangeCount == 0) {
         mal_free(pSampleRateRanges);
         return MAL_ERROR;   // Should never hit this case should we?
     }
-    
+
     if (sampleRateIn == 0) {
         // Search in order of mini_al's preferred priority.
         for (UInt32 iMALSampleRate = 0; iMALSampleRate < mal_countof(g_malStandardSampleRatePriorities); ++iMALSampleRate) {
@@ -13839,11 +13839,11 @@ mal_result mal_get_AudioObject_get_closest_sample_rate(mal_context* pContext, Au
                 }
             }
         }
-        
+
         // If we get here it means none of mini_al's standard sample rates matched any of the supported sample rates from the device. In this
         // case we just fall back to the first one reported by Core Audio.
         mal_assert(sampleRateRangeCount > 0);
-        
+
         *pSampleRateOut = pSampleRateRanges[0].mMinimum;
         mal_free(pSampleRateRanges);
         return MAL_SUCCESS;
@@ -13863,21 +13863,21 @@ mal_result mal_get_AudioObject_get_closest_sample_rate(mal_context* pContext, Au
                 } else {
                     absoluteDifference = sampleRateIn - pSampleRateRanges[iRange].mMaximum;
                 }
-                
+
                 if (currentAbsoluteDifference > absoluteDifference) {
                     currentAbsoluteDifference = absoluteDifference;
                     iCurrentClosestRange = iRange;
                 }
             }
         }
-        
+
         mal_assert(iCurrentClosestRange != (UInt32)-1);
-        
+
         *pSampleRateOut = pSampleRateRanges[iCurrentClosestRange].mMinimum;
         mal_free(pSampleRateRanges);
         return MAL_SUCCESS;
     }
-    
+
     // Should never get here, but it would mean we weren't able to find any suitable sample rates.
     //mal_free(pSampleRateRanges);
     //return MAL_ERROR;
@@ -13888,9 +13888,9 @@ mal_result mal_get_AudioObject_closest_buffer_size_in_frames(mal_context* pConte
 {
     mal_assert(pContext != NULL);
     mal_assert(pBufferSizeInFramesOut != NULL);
-    
+
     *pBufferSizeInFramesOut = 0;    // Safety.
-    
+
     AudioObjectPropertyAddress propAddress;
     propAddress.mSelector = kAudioDevicePropertyBufferFrameSizeRange;
     propAddress.mScope    = (deviceType == mal_device_type_playback) ? kAudioObjectPropertyScopeOutput : kAudioObjectPropertyScopeInput;
@@ -13902,7 +13902,7 @@ mal_result mal_get_AudioObject_closest_buffer_size_in_frames(mal_context* pConte
     if (status != noErr) {
         return mal_result_from_OSStatus(status);
     }
-    
+
     // This is just a clamp.
     if (bufferSizeInFramesIn < bufferSizeRange.mMinimum) {
         *pBufferSizeInFramesOut = (mal_uint32)bufferSizeRange.mMinimum;
@@ -13930,16 +13930,16 @@ mal_result mal_set_AudioObject_buffer_size_in_frames(mal_context* pContext, Audi
     propAddress.mSelector = kAudioDevicePropertyBufferFrameSize;
     propAddress.mScope    = (deviceType == mal_device_type_playback) ? kAudioObjectPropertyScopeOutput : kAudioObjectPropertyScopeInput;
     propAddress.mElement  = kAudioObjectPropertyElementMaster;
-    
+
     ((mal_AudioObjectSetPropertyData_proc)pContext->coreaudio.AudioObjectSetPropertyData)(deviceObjectID, &propAddress, 0, NULL, sizeof(chosenBufferSizeInFrames), &chosenBufferSizeInFrames);
-    
+
     // Get the actual size of the buffer.
     UInt32 dataSize = sizeof(*pBufferSizeInOut);
     OSStatus status = ((mal_AudioObjectGetPropertyData_proc)pContext->coreaudio.AudioObjectGetPropertyData)(deviceObjectID, &propAddress, 0, NULL, &dataSize, &chosenBufferSizeInFrames);
     if (status != noErr) {
         return mal_result_from_OSStatus(status);
     }
-    
+
     *pBufferSizeInOut = chosenBufferSizeInFrames;
     return MAL_SUCCESS;
 }
@@ -13952,7 +13952,7 @@ mal_result mal_find_AudioObjectID(mal_context* pContext, mal_device_type type, c
 
     // Safety.
     *pDeviceObjectID = 0;
-    
+
     if (pDeviceID == NULL) {
         // Default device.
         AudioObjectPropertyAddress propAddressDefaultDevice;
@@ -13963,7 +13963,7 @@ mal_result mal_find_AudioObjectID(mal_context* pContext, mal_device_type type, c
         } else {
             propAddressDefaultDevice.mSelector = kAudioHardwarePropertyDefaultInputDevice;
         }
-        
+
         UInt32 defaultDeviceObjectIDSize = sizeof(AudioObjectID);
         AudioObjectID defaultDeviceObjectID;
         OSStatus status = ((mal_AudioObjectGetPropertyData_proc)pContext->coreaudio.AudioObjectGetPropertyData)(kAudioObjectSystemObject, &propAddressDefaultDevice, 0, NULL, &defaultDeviceObjectIDSize, &defaultDeviceObjectID);
@@ -13979,15 +13979,15 @@ mal_result mal_find_AudioObjectID(mal_context* pContext, mal_device_type type, c
         if (result != MAL_SUCCESS) {
             return result;
         }
-        
+
         for (UInt32 iDevice = 0; iDevice < deviceCount; ++iDevice) {
             AudioObjectID deviceObjectID = pDeviceObjectIDs[iDevice];
-            
+
             char uid[256];
             if (mal_get_AudioObject_uid(pContext, deviceObjectID, sizeof(uid), uid) != MAL_SUCCESS) {
                 continue;
             }
-            
+
             if (type == mal_device_type_playback) {
                 if (mal_does_AudioObject_support_playback(pContext, deviceObjectID)) {
                     if (strcmp(uid, pDeviceID->coreaudio) == 0) {
@@ -14005,7 +14005,7 @@ mal_result mal_find_AudioObjectID(mal_context* pContext, mal_device_type type, c
             }
         }
     }
-    
+
     // If we get here it means we couldn't find the device.
     return MAL_NO_DEVICE;
 }
@@ -14014,55 +14014,55 @@ mal_result mal_find_AudioObjectID(mal_context* pContext, mal_device_type type, c
 mal_result mal_device_find_best_format__coreaudio(const mal_device* pDevice, AudioStreamBasicDescription* pFormat)
 {
     mal_assert(pDevice != NULL);
-    
+
     AudioObjectID deviceObjectID = (AudioObjectID)pDevice->coreaudio.deviceObjectID;
-    
+
     UInt32 deviceFormatDescriptionCount;
     AudioStreamRangedDescription* pDeviceFormatDescriptions;
     mal_result result = mal_get_AudioObject_stream_descriptions(pDevice->pContext, deviceObjectID, pDevice->type, &deviceFormatDescriptionCount, &pDeviceFormatDescriptions);
     if (result != MAL_SUCCESS) {
         return result;
     }
-    
+
     mal_uint32 desiredSampleRate = pDevice->sampleRate;
     if (pDevice->usingDefaultSampleRate) {
         // When using the device's default sample rate, we get the highest priority standard rate supported by the device. Otherwise
         // we just use the pre-set rate.
         for (mal_uint32 iStandardRate = 0; iStandardRate < mal_countof(g_malStandardSampleRatePriorities); ++iStandardRate) {
             mal_uint32 standardRate = g_malStandardSampleRatePriorities[iStandardRate];
-            
+
             mal_bool32 foundRate = MAL_FALSE;
             for (UInt32 iDeviceRate = 0; iDeviceRate < deviceFormatDescriptionCount; ++iDeviceRate) {
                 mal_uint32 deviceRate = (mal_uint32)pDeviceFormatDescriptions[iDeviceRate].mFormat.mSampleRate;
-                
+
                 if (deviceRate == standardRate) {
                     desiredSampleRate = standardRate;
                     foundRate = MAL_TRUE;
                     break;
                 }
             }
-            
+
             if (foundRate) {
                 break;
             }
         }
     }
-    
+
     mal_uint32 desiredChannelCount = pDevice->channels;
     if (pDevice->usingDefaultChannels) {
         mal_get_AudioObject_channel_count(pDevice->pContext, deviceObjectID, pDevice->type, &desiredChannelCount);    // <-- Not critical if this fails.
     }
-    
+
     mal_format desiredFormat = pDevice->format;
     if (pDevice->usingDefaultFormat) {
         desiredFormat = g_malFormatPriorities[0];
     }
-    
+
     // If we get here it means we don't have an exact match to what the client is asking for. We'll need to find the closest one. The next
     // loop will check for formats that have the same sample rate to what we're asking for. If there is, we prefer that one in all cases.
     AudioStreamBasicDescription bestDeviceFormatSoFar;
     mal_zero_object(&bestDeviceFormatSoFar);
-    
+
     mal_bool32 hasSupportedFormat = MAL_FALSE;
     for (UInt32 iFormat = 0; iFormat < deviceFormatDescriptionCount; ++iFormat) {
         mal_format format;
@@ -14073,26 +14073,26 @@ mal_result mal_device_find_best_format__coreaudio(const mal_device* pDevice, Aud
             break;
         }
     }
-    
+
     if (!hasSupportedFormat) {
         return MAL_FORMAT_NOT_SUPPORTED;
     }
-    
-    
+
+
     for (UInt32 iFormat = 0; iFormat < deviceFormatDescriptionCount; ++iFormat) {
         AudioStreamBasicDescription thisDeviceFormat = pDeviceFormatDescriptions[iFormat].mFormat;
-    
+
         // If the format is not supported by mini_al we need to skip this one entirely.
         mal_format thisSampleFormat;
         mal_result formatResult = mal_format_from_AudioStreamBasicDescription(&pDeviceFormatDescriptions[iFormat].mFormat, &thisSampleFormat);
         if (formatResult != MAL_SUCCESS || thisSampleFormat == mal_format_unknown) {
             continue;   // The format is not supported by mini_al. Skip.
         }
-        
+
         mal_format bestSampleFormatSoFar;
         mal_format_from_AudioStreamBasicDescription(&bestDeviceFormatSoFar, &bestSampleFormatSoFar);
-        
-    
+
+
         // Getting here means the format is supported by mini_al which makes this format a candidate.
         if (thisDeviceFormat.mSampleRate != desiredSampleRate) {
             // The sample rate does not match, but this format could still be usable, although it's a very low priority. If the best format
@@ -14182,7 +14182,7 @@ mal_result mal_device_find_best_format__coreaudio(const mal_device* pDevice, Aud
             }
         }
     }
-    
+
     *pFormat = bestDeviceFormatSoFar;
     return MAL_SUCCESS;
 }
@@ -14204,7 +14204,7 @@ mal_result mal_context_enumerate_devices__coreaudio(mal_context* pContext, mal_e
 {
     mal_assert(pContext != NULL);
     mal_assert(callback != NULL);
-    
+
 #if defined(MAL_APPLE_DESKTOP)
     UInt32 deviceCount;
     AudioObjectID* pDeviceObjectIDs;
@@ -14212,7 +14212,7 @@ mal_result mal_context_enumerate_devices__coreaudio(mal_context* pContext, mal_e
     if (result != MAL_SUCCESS) {
         return result;
     }
-  
+
     for (UInt32 iDevice = 0; iDevice < deviceCount; ++iDevice) {
         AudioObjectID deviceObjectID = pDeviceObjectIDs[iDevice];
 
@@ -14236,25 +14236,25 @@ mal_result mal_context_enumerate_devices__coreaudio(mal_context* pContext, mal_e
             }
         }
     }
-    
+
     mal_free(pDeviceObjectIDs);
 #else
     // Only supporting default devices on non-Desktop platforms.
     mal_device_info info;
-    
+
     mal_zero_object(&info);
     mal_strncpy_s(info.name, sizeof(info.name), MAL_DEFAULT_PLAYBACK_DEVICE_NAME, (size_t)-1);
     if (!callback(pContext, mal_device_type_playback, &info, pUserData)) {
         return MAL_SUCCESS;
     }
-    
+
     mal_zero_object(&info);
     mal_strncpy_s(info.name, sizeof(info.name), MAL_DEFAULT_CAPTURE_DEVICE_NAME, (size_t)-1);
     if (!callback(pContext, mal_device_type_capture, &info, pUserData)) {
         return MAL_SUCCESS;
     }
 #endif
-    
+
     return MAL_SUCCESS;
 }
 
@@ -14263,7 +14263,7 @@ mal_result mal_context_get_device_info__coreaudio(mal_context* pContext, mal_dev
     mal_assert(pContext != NULL);
     (void)shareMode;
     (void)pDeviceInfo;
-    
+
 #if defined(MAL_APPLE_DESKTOP)
     // Desktop
     // =======
@@ -14272,17 +14272,17 @@ mal_result mal_context_get_device_info__coreaudio(mal_context* pContext, mal_dev
     if (result != MAL_SUCCESS) {
         return result;
     }
-    
+
     result = mal_get_AudioObject_uid(pContext, deviceObjectID, sizeof(pDeviceInfo->id.coreaudio), pDeviceInfo->id.coreaudio);
     if (result != MAL_SUCCESS) {
         return result;
     }
-    
+
     result = mal_get_AudioObject_name(pContext, deviceObjectID, sizeof(pDeviceInfo->name), pDeviceInfo->name);
     if (result != MAL_SUCCESS) {
         return result;
     }
-    
+
     // Formats.
     UInt32 streamDescriptionCount;
     AudioStreamRangedDescription* pStreamDescriptions;
@@ -14290,16 +14290,16 @@ mal_result mal_context_get_device_info__coreaudio(mal_context* pContext, mal_dev
     if (result != MAL_SUCCESS) {
         return result;
     }
-    
+
     for (UInt32 iStreamDescription = 0; iStreamDescription < streamDescriptionCount; ++iStreamDescription) {
         mal_format format;
         result = mal_format_from_AudioStreamBasicDescription(&pStreamDescriptions[iStreamDescription].mFormat, &format);
         if (result != MAL_SUCCESS) {
             continue;
         }
-        
+
         mal_assert(format != mal_format_unknown);
-        
+
         // Make sure the format isn't already in the output list.
         mal_bool32 exists = MAL_FALSE;
         for (mal_uint32 iOutputFormat = 0; iOutputFormat < pDeviceInfo->formatCount; ++iOutputFormat) {
@@ -14308,23 +14308,23 @@ mal_result mal_context_get_device_info__coreaudio(mal_context* pContext, mal_dev
                 break;
             }
         }
-        
+
         if (!exists) {
             pDeviceInfo->formats[pDeviceInfo->formatCount++] = format;
         }
     }
-    
+
     mal_free(pStreamDescriptions);
-    
-    
+
+
     // Channels.
     result = mal_get_AudioObject_channel_count(pContext, deviceObjectID, deviceType, &pDeviceInfo->minChannels);
     if (result != MAL_SUCCESS) {
         return result;
     }
     pDeviceInfo->maxChannels = pDeviceInfo->minChannels;
-    
-    
+
+
     // Sample rates.
     UInt32 sampleRateRangeCount;
     AudioValueRange* pSampleRateRanges;
@@ -14332,7 +14332,7 @@ mal_result mal_context_get_device_info__coreaudio(mal_context* pContext, mal_dev
     if (result != MAL_SUCCESS) {
         return result;
     }
-    
+
     if (sampleRateRangeCount > 0) {
         pDeviceInfo->minSampleRate = UINT32_MAX;
         pDeviceInfo->maxSampleRate = 0;
@@ -14353,7 +14353,7 @@ mal_result mal_context_get_device_info__coreaudio(mal_context* pContext, mal_dev
     } else {
         mal_strncpy_s(pDeviceInfo->name, sizeof(pDeviceInfo->name), MAL_DEFAULT_CAPTURE_DEVICE_NAME, (size_t)-1);
     }
-    
+
     // Retrieving device information is more annoying on mobile than desktop. For simplicity I'm locking this down to whatever format is
     // reported on a temporary I/O unit. The problem, however, is that this doesn't return a value for the sample rate which we need to
     // retrieve from the AVAudioSession shared instance.
@@ -14363,21 +14363,21 @@ mal_result mal_context_get_device_info__coreaudio(mal_context* pContext, mal_dev
     desc.componentManufacturer = kAudioUnitManufacturer_Apple;
     desc.componentFlags = 0;
     desc.componentFlagsMask = 0;
-    
+
     AudioComponent component = ((mal_AudioComponentFindNext_proc)pContext->coreaudio.AudioComponentFindNext)(NULL, &desc);
     if (component == NULL) {
         return MAL_FAILED_TO_INIT_BACKEND;
     }
-    
+
     AudioUnit audioUnit;
     OSStatus status = ((mal_AudioComponentInstanceNew_proc)pContext->coreaudio.AudioComponentInstanceNew)(component, &audioUnit);
     if (status != noErr) {
         return mal_result_from_OSStatus(status);
     }
-    
+
     AudioUnitScope   formatScope   = (deviceType == mal_device_type_playback) ? kAudioUnitScope_Input : kAudioUnitScope_Output;
     AudioUnitElement formatElement = (deviceType == mal_device_type_playback) ? MAL_COREAUDIO_OUTPUT_BUS : MAL_COREAUDIO_INPUT_BUS;
-    
+
     AudioStreamBasicDescription bestFormat;
     UInt32 propSize = sizeof(bestFormat);
     status = ((mal_AudioUnitGetProperty_proc)pContext->coreaudio.AudioUnitGetProperty)(audioUnit, kAudioUnitProperty_StreamFormat, formatScope, formatElement, &bestFormat, &propSize);
@@ -14385,20 +14385,20 @@ mal_result mal_context_get_device_info__coreaudio(mal_context* pContext, mal_dev
         ((mal_AudioComponentInstanceDispose_proc)pContext->coreaudio.AudioComponentInstanceDispose)(audioUnit);
         return mal_result_from_OSStatus(status);
     }
-    
+
     ((mal_AudioComponentInstanceDispose_proc)pContext->coreaudio.AudioComponentInstanceDispose)(audioUnit);
     audioUnit = NULL;
-    
-    
+
+
     pDeviceInfo->minChannels = bestFormat.mChannelsPerFrame;
     pDeviceInfo->maxChannels = bestFormat.mChannelsPerFrame;
-    
+
     pDeviceInfo->formatCount = 1;
     mal_result result = mal_format_from_AudioStreamBasicDescription(&bestFormat, &pDeviceInfo->formats[0]);
     if (result != MAL_SUCCESS) {
         return result;
     }
-    
+
     // It looks like Apple are wanting to push the whole AVAudioSession thing. Thus, we need to use that to determine device settings. To do
     // this we just get the shared instance and inspect.
     @autoreleasepool {
@@ -14409,7 +14409,7 @@ mal_result mal_context_get_device_info__coreaudio(mal_context* pContext, mal_dev
         pDeviceInfo->maxSampleRate = pDeviceInfo->minSampleRate;
     }
 #endif
-    
+
     return MAL_SUCCESS;
 }
 
@@ -14418,9 +14418,9 @@ void mal_device_uninit__coreaudio(mal_device* pDevice)
 {
     mal_assert(pDevice != NULL);
     mal_assert(mal_device__get_state(pDevice) == MAL_STATE_UNINITIALIZED);
-    
+
     ((mal_AudioComponentInstanceDispose_proc)pDevice->pContext->coreaudio.AudioComponentInstanceDispose)((AudioUnit)pDevice->coreaudio.audioUnit);
-    
+
     if (pDevice->coreaudio.pAudioBufferList) {
         mal_free(pDevice->coreaudio.pAudioBufferList);
     }
@@ -14435,11 +14435,11 @@ OSStatus mal_on_output__coreaudio(void* pUserData, AudioUnitRenderActionFlags* p
 
     mal_device* pDevice = (mal_device*)pUserData;
     mal_assert(pDevice != NULL);
-    
+
 #if defined(MAL_DEBUG_OUTPUT)
     printf("INFO: Output Callback: busNumber=%d, frameCount=%d, mNumberBuffers=%d\n", busNumber, frameCount, pBufferList->mNumberBuffers);
 #endif
-    
+
     // For now we can assume everything is interleaved.
     for (UInt32 iBuffer = 0; iBuffer < pBufferList->mNumberBuffers; ++iBuffer) {
         if (pBufferList->mBuffers[iBuffer].mNumberChannels == pDevice->internalChannels) {
@@ -14447,7 +14447,7 @@ OSStatus mal_on_output__coreaudio(void* pUserData, AudioUnitRenderActionFlags* p
             if (frameCountForThisBuffer > 0) {
                 mal_device__read_frames_from_client(pDevice, frameCountForThisBuffer, pBufferList->mBuffers[iBuffer].mData);
             }
-            
+
         #if defined(MAL_DEBUG_OUTPUT)
             printf("  frameCount=%d, mNumberChannels=%d, mDataByteSize=%d\n", frameCount, pBufferList->mBuffers[iBuffer].mNumberChannels, pBufferList->mBuffers[iBuffer].mDataByteSize);
         #endif
@@ -14462,7 +14462,7 @@ OSStatus mal_on_output__coreaudio(void* pUserData, AudioUnitRenderActionFlags* p
         #endif
         }
     }
-    
+
     return noErr;
 }
 
@@ -14473,17 +14473,17 @@ OSStatus mal_on_input__coreaudio(void* pUserData, AudioUnitRenderActionFlags* pA
     (void)busNumber;
     (void)frameCount;
     (void)pUnusedBufferList;
-    
+
     mal_device* pDevice = (mal_device*)pUserData;
     mal_assert(pDevice != NULL);
-    
+
     AudioBufferList* pRenderedBufferList = (AudioBufferList*)pDevice->coreaudio.pAudioBufferList;
     mal_assert(pRenderedBufferList);
-    
+
 #if defined(MAL_DEBUG_OUTPUT)
     printf("INFO: Input Callback: busNumber=%d, frameCount=%d, mNumberBuffers=%d\n", busNumber, frameCount, pRenderedBufferList->mNumberBuffers);
 #endif
-    
+
     OSStatus status = ((mal_AudioUnitRender_proc)pDevice->pContext->coreaudio.AudioUnitRender)((AudioUnit)pDevice->coreaudio.audioUnit, pActionFlags, pTimeStamp, busNumber, frameCount, pRenderedBufferList);
     if (status != noErr) {
     #if defined(MAL_DEBUG_OUTPUT)
@@ -14491,7 +14491,7 @@ OSStatus mal_on_input__coreaudio(void* pUserData, AudioUnitRenderActionFlags* pA
     #endif
         return status;
     }
-    
+
     // For now we can assume everything is interleaved.
     for (UInt32 iBuffer = 0; iBuffer < pRenderedBufferList->mNumberBuffers; ++iBuffer) {
         if (pRenderedBufferList->mBuffers[iBuffer].mNumberChannels == pDevice->internalChannels) {
@@ -14511,17 +14511,17 @@ OSStatus mal_on_input__coreaudio(void* pUserData, AudioUnitRenderActionFlags* pA
 void on_start_stop__coreaudio(void* pUserData, AudioUnit audioUnit, AudioUnitPropertyID propertyID, AudioUnitScope scope, AudioUnitElement element)
 {
     (void)propertyID;
-    
+
     mal_device* pDevice = (mal_device*)pUserData;
     mal_assert(pDevice != NULL);
-    
+
     UInt32 isRunning;
     UInt32 isRunningSize = sizeof(isRunning);
     OSStatus status = ((mal_AudioUnitGetProperty_proc)pDevice->pContext->coreaudio.AudioUnitGetProperty)(audioUnit, kAudioOutputUnitProperty_IsRunning, scope, element, &isRunning, &isRunningSize);
     if (status != noErr) {
         return; // Don't really know what to do in this case... just ignore it, I suppose...
     }
-    
+
     if (!isRunning) {
         mal_stop_proc onStop = pDevice->onStop;
         if (onStop) {
@@ -14537,19 +14537,19 @@ mal_result mal_device_init__coreaudio(mal_context* pContext, mal_device_type dev
     mal_assert(pConfig != NULL);
     mal_assert(pDevice != NULL);
     mal_assert(deviceType == mal_device_type_playback || deviceType == mal_device_type_capture);
-    
+
     mal_result result;
-    
+
 #if defined(MAL_APPLE_DESKTOP)
     AudioObjectID deviceObjectID;
     result = mal_find_AudioObjectID(pContext, deviceType, pDeviceID, &deviceObjectID);
     if (result != MAL_SUCCESS) {
         return result;
     }
-    
+
     pDevice->coreaudio.deviceObjectID = deviceObjectID;
 #endif
-    
+
     // Core audio doesn't really use the notion of a period so we can leave this unmodified, but not too over the top.
     if (pDevice->periods < 1) {
         pDevice->periods = 1;
@@ -14557,7 +14557,7 @@ mal_result mal_device_init__coreaudio(mal_context* pContext, mal_device_type dev
     if (pDevice->periods > 16) {
         pDevice->periods = 16;
     }
-    
+
 
     // Audio component.
     AudioComponentDescription desc;
@@ -14570,40 +14570,40 @@ mal_result mal_device_init__coreaudio(mal_context* pContext, mal_device_type dev
     desc.componentManufacturer = kAudioUnitManufacturer_Apple;
     desc.componentFlags = 0;
     desc.componentFlagsMask = 0;
-    
+
     pDevice->coreaudio.component = ((mal_AudioComponentFindNext_proc)pContext->coreaudio.AudioComponentFindNext)(NULL, &desc);
     if (pDevice->coreaudio.component == NULL) {
         return MAL_FAILED_TO_INIT_BACKEND;
     }
-    
-    
+
+
     // Audio unit.
     OSStatus status = ((mal_AudioComponentInstanceNew_proc)pContext->coreaudio.AudioComponentInstanceNew)((AudioComponent)pDevice->coreaudio.component, (AudioUnit*)&pDevice->coreaudio.audioUnit);
     if (status != noErr) {
         return mal_result_from_OSStatus(status);
     }
-    
-    
+
+
     // The input/output buses need to be explicitly enabled and disabled. We set the flag based on the output unit first, then we just swap it for input.
     UInt32 enableIOFlag = 1;
     if (deviceType == mal_device_type_capture) {
         enableIOFlag = 0;
     }
-    
+
     status = ((mal_AudioUnitSetProperty_proc)pContext->coreaudio.AudioUnitSetProperty)((AudioUnit)pDevice->coreaudio.audioUnit, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Output, MAL_COREAUDIO_OUTPUT_BUS, &enableIOFlag, sizeof(enableIOFlag));
     if (status != noErr) {
         ((mal_AudioComponentInstanceDispose_proc)pContext->coreaudio.AudioComponentInstanceDispose)((AudioUnit)pDevice->coreaudio.audioUnit);
         return mal_result_from_OSStatus(status);
     }
-    
+
     enableIOFlag = (enableIOFlag == 0) ? 1 : 0;
     status = ((mal_AudioUnitSetProperty_proc)pContext->coreaudio.AudioUnitSetProperty)((AudioUnit)pDevice->coreaudio.audioUnit, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Input, MAL_COREAUDIO_INPUT_BUS, &enableIOFlag, sizeof(enableIOFlag));
     if (status != noErr) {
         ((mal_AudioComponentInstanceDispose_proc)pContext->coreaudio.AudioComponentInstanceDispose)((AudioUnit)pDevice->coreaudio.audioUnit);
         return mal_result_from_OSStatus(status);
     }
-    
-    
+
+
     // Set the device to use with this audio unit. This is only used on desktop since we are using defaults on mobile.
 #if defined(MAL_APPLE_DESKTOP)
     status = ((mal_AudioUnitSetProperty_proc)pContext->coreaudio.AudioUnitSetProperty)((AudioUnit)pDevice->coreaudio.audioUnit, kAudioOutputUnitProperty_CurrentDevice, kAudioUnitScope_Global, (deviceType == mal_device_type_playback) ? MAL_COREAUDIO_OUTPUT_BUS : MAL_COREAUDIO_INPUT_BUS, &deviceObjectID, sizeof(AudioDeviceID));
@@ -14612,7 +14612,7 @@ mal_result mal_device_init__coreaudio(mal_context* pContext, mal_device_type dev
         return mal_result_from_OSStatus(result);
     }
 #endif
-    
+
     // Format. This is the hardest part of initialization because there's a few variables to take into account.
     //   1) The format must be supported by the device.
     //   2) The format must be supported mini_al.
@@ -14627,14 +14627,14 @@ mal_result mal_device_init__coreaudio(mal_context* pContext, mal_device_type dev
     {
         AudioUnitScope   formatScope   = (deviceType == mal_device_type_playback) ? kAudioUnitScope_Input : kAudioUnitScope_Output;
         AudioUnitElement formatElement = (deviceType == mal_device_type_playback) ? MAL_COREAUDIO_OUTPUT_BUS : MAL_COREAUDIO_INPUT_BUS;
-    
+
     #if defined(MAL_APPLE_DESKTOP)
         result = mal_device_find_best_format__coreaudio(pDevice, &bestFormat);
         if (result != MAL_SUCCESS) {
             ((mal_AudioComponentInstanceDispose_proc)pContext->coreaudio.AudioComponentInstanceDispose)((AudioUnit)pDevice->coreaudio.audioUnit);
             return result;
         }
-        
+
         // From what I can see, Apple's documentation implies that we should keep the sample rate consistent.
         AudioStreamBasicDescription origFormat;
         UInt32 origFormatSize = sizeof(origFormat);
@@ -14643,14 +14643,14 @@ mal_result mal_device_init__coreaudio(mal_context* pContext, mal_device_type dev
         } else {
             status = ((mal_AudioUnitGetProperty_proc)pContext->coreaudio.AudioUnitGetProperty)((AudioUnit)pDevice->coreaudio.audioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, MAL_COREAUDIO_INPUT_BUS, &origFormat, &origFormatSize);
         }
-        
+
         if (status != noErr) {
             ((mal_AudioComponentInstanceDispose_proc)pContext->coreaudio.AudioComponentInstanceDispose)((AudioUnit)pDevice->coreaudio.audioUnit);
             return result;
         }
-        
+
         bestFormat.mSampleRate = origFormat.mSampleRate;
-        
+
         status = ((mal_AudioUnitSetProperty_proc)pContext->coreaudio.AudioUnitSetProperty)((AudioUnit)pDevice->coreaudio.audioUnit, kAudioUnitProperty_StreamFormat, formatScope, formatElement, &bestFormat, sizeof(bestFormat));
         if (status != noErr) {
             // We failed to set the format, so fall back to the current format of the audio unit.
@@ -14663,7 +14663,7 @@ mal_result mal_device_init__coreaudio(mal_context* pContext, mal_device_type dev
             ((mal_AudioComponentInstanceDispose_proc)pContext->coreaudio.AudioComponentInstanceDispose)((AudioUnit)pDevice->coreaudio.audioUnit);
             return mal_result_from_OSStatus(status);
         }
-        
+
         // Sample rate is a little different here because for some reason kAudioUnitProperty_StreamFormat returns 0... Oh well. We need to instead try
         // setting the sample rate to what the user has requested and then just see the results of it. Need to use some Objective-C here for this since
         // it depends on Apple's AVAudioSession API. To do this we just get the shared AVAudioSession instance and then set it. Note that from what I
@@ -14671,34 +14671,34 @@ mal_result mal_device_init__coreaudio(mal_context* pContext, mal_device_type dev
         @autoreleasepool {
             AVAudioSession* pAudioSession = [AVAudioSession sharedInstance];
             mal_assert(pAudioSession != NULL);
-            
+
             [pAudioSession setPreferredSampleRate:(double)pDevice->sampleRate error:nil];
             bestFormat.mSampleRate = pAudioSession.sampleRate;
         }
-        
+
         status = ((mal_AudioUnitSetProperty_proc)pContext->coreaudio.AudioUnitSetProperty)((AudioUnit)pDevice->coreaudio.audioUnit, kAudioUnitProperty_StreamFormat, formatScope, formatElement, &bestFormat, sizeof(bestFormat));
         if (status != noErr) {
             ((mal_AudioComponentInstanceDispose_proc)pContext->coreaudio.AudioComponentInstanceDispose)((AudioUnit)pDevice->coreaudio.audioUnit);
             return mal_result_from_OSStatus(status);
         }
     #endif
-        
+
         result = mal_format_from_AudioStreamBasicDescription(&bestFormat, &pDevice->internalFormat);
         if (result != MAL_SUCCESS) {
             ((mal_AudioComponentInstanceDispose_proc)pContext->coreaudio.AudioComponentInstanceDispose)((AudioUnit)pDevice->coreaudio.audioUnit);
             return result;
         }
-        
+
         if (pDevice->internalFormat == mal_format_unknown) {
             ((mal_AudioComponentInstanceDispose_proc)pContext->coreaudio.AudioComponentInstanceDispose)((AudioUnit)pDevice->coreaudio.audioUnit);
             return MAL_FORMAT_NOT_SUPPORTED;
         }
-        
+
         pDevice->internalChannels = bestFormat.mChannelsPerFrame;
         pDevice->internalSampleRate = bestFormat.mSampleRate;
     }
-    
-    
+
+
     // Internal channel map.
 #if defined(MAL_APPLE_DESKTOP)
     result = mal_get_AudioObject_channel_map(pContext, deviceObjectID, deviceType, pDevice->internalChannelMap);
@@ -14709,14 +14709,14 @@ mal_result mal_device_init__coreaudio(mal_context* pContext, mal_device_type dev
     // TODO: Figure out how to get the channel map using AVAudioSession.
     mal_get_standard_channel_map(mal_standard_channel_map_default, pDevice->internalChannels, pDevice->internalChannelMap);
 #endif
-    
-    
+
+
     // Buffer size. Not allowing this to be configurable on iOS.
     mal_uint32 actualBufferSizeInFrames = pDevice->bufferSizeInFrames;
     if (actualBufferSizeInFrames < pDevice->periods) {
         actualBufferSizeInFrames = pDevice->periods;
     }
-    
+
 #if defined(MAL_APPLE_DESKTOP)
     if (pDevice->usingDefaultBufferSize) {
         // CPU speed is a factor to consider when determine how large of a buffer we need.
@@ -14740,7 +14740,7 @@ mal_result mal_device_init__coreaudio(mal_context* pContext, mal_device_type dev
             actualBufferSizeInFrames = pDevice->periods;
         }
     }
-    
+
     actualBufferSizeInFrames = actualBufferSizeInFrames / pDevice->periods;
     result = mal_set_AudioObject_buffer_size_in_frames(pContext, deviceObjectID, deviceType, &actualBufferSizeInFrames);
     if (result != MAL_SUCCESS) {
@@ -14751,7 +14751,7 @@ mal_result mal_device_init__coreaudio(mal_context* pContext, mal_device_type dev
 #endif
 
     pDevice->bufferSizeInFrames = actualBufferSizeInFrames * pDevice->periods;
-    
+
     // During testing I discovered that the buffer size can be too big. You'll get an error like this:
     //
     //   kAudioUnitErr_TooManyFramesToProcess : inFramesToProcess=4096, mMaxFramesPerSlice=512
@@ -14761,20 +14761,20 @@ mal_result mal_device_init__coreaudio(mal_context* pContext, mal_device_type dev
     {
         /*AudioUnitScope propScope = (deviceType == mal_device_type_playback) ? kAudioUnitScope_Input : kAudioUnitScope_Output;
         AudioUnitElement propBus = (deviceType == mal_device_type_playback) ? MAL_COREAUDIO_OUTPUT_BUS : MAL_COREAUDIO_INPUT_BUS;
-    
+
         status = ((mal_AudioUnitSetProperty_proc)pContext->coreaudio.AudioUnitSetProperty)((AudioUnit)pDevice->coreaudio.audioUnit, kAudioUnitProperty_MaximumFramesPerSlice, propScope, propBus, &actualBufferSizeInFrames, sizeof(actualBufferSizeInFrames));
         if (status != noErr) {
             ((mal_AudioComponentInstanceDispose_proc)pContext->coreaudio.AudioComponentInstanceDispose)((AudioUnit)pDevice->coreaudio.audioUnit);
             return mal_result_from_OSStatus(status);
         }*/
-        
+
         status = ((mal_AudioUnitSetProperty_proc)pContext->coreaudio.AudioUnitSetProperty)((AudioUnit)pDevice->coreaudio.audioUnit, kAudioUnitProperty_MaximumFramesPerSlice, kAudioUnitScope_Global, 0, &actualBufferSizeInFrames, sizeof(actualBufferSizeInFrames));
         if (status != noErr) {
             ((mal_AudioComponentInstanceDispose_proc)pContext->coreaudio.AudioComponentInstanceDispose)((AudioUnit)pDevice->coreaudio.audioUnit);
             return mal_result_from_OSStatus(status);
         }
     }
-    
+
 
     // Callbacks.
     AURenderCallbackStruct callbackInfo;
@@ -14794,19 +14794,19 @@ mal_result mal_device_init__coreaudio(mal_context* pContext, mal_device_type dev
             return mal_result_from_OSStatus(status);
         }
     }
-    
+
     // We need to listen for stop events.
     status = ((mal_AudioUnitAddPropertyListener_proc)pContext->coreaudio.AudioUnitAddPropertyListener)((AudioUnit)pDevice->coreaudio.audioUnit, kAudioOutputUnitProperty_IsRunning, on_start_stop__coreaudio, pDevice);
     if (status != noErr) {
         ((mal_AudioComponentInstanceDispose_proc)pContext->coreaudio.AudioComponentInstanceDispose)((AudioUnit)pDevice->coreaudio.audioUnit);
         return mal_result_from_OSStatus(status);
     }
-    
-    
+
+
     // We need a buffer list if this is an input device. We render into this in the input callback.
     if (deviceType == mal_device_type_capture) {
         mal_bool32 isInterleaved = (bestFormat.mFormatFlags & kAudioFormatFlagIsNonInterleaved) == 0;
-        
+
         size_t allocationSize = sizeof(AudioBufferList) - sizeof(AudioBuffer);  // Subtract sizeof(AudioBuffer) because that part is dynamically sized.
         if (isInterleaved) {
             // Interleaved case. This is the simple case because we just have one buffer.
@@ -14817,13 +14817,13 @@ mal_result mal_device_init__coreaudio(mal_context* pContext, mal_device_type dev
             allocationSize += sizeof(AudioBuffer) * pDevice->internalChannels;
             allocationSize += actualBufferSizeInFrames * mal_get_bytes_per_sample(pDevice->internalFormat) * pDevice->internalChannels;
         }
-        
+
         AudioBufferList* pBufferList = (AudioBufferList*)mal_malloc(allocationSize);
         if (pBufferList == NULL) {
             ((mal_AudioComponentInstanceDispose_proc)pContext->coreaudio.AudioComponentInstanceDispose)((AudioUnit)pDevice->coreaudio.audioUnit);
             return MAL_OUT_OF_MEMORY;
         }
-        
+
         if (isInterleaved) {
             pBufferList->mNumberBuffers = 1;
             pBufferList->mBuffers[0].mNumberChannels = pDevice->internalChannels;
@@ -14837,11 +14837,11 @@ mal_result mal_device_init__coreaudio(mal_context* pContext, mal_device_type dev
                 pBufferList->mBuffers[iBuffer].mData = (mal_uint8*)pBufferList + ((sizeof(AudioBufferList) - sizeof(AudioBuffer)) + (sizeof(AudioBuffer) * pDevice->internalChannels)) + (actualBufferSizeInFrames * mal_get_bytes_per_sample(pDevice->internalFormat) * iBuffer);
             }
         }
-        
+
         pDevice->coreaudio.pAudioBufferList = pBufferList;
     }
-    
-    
+
+
     // Initialize the audio unit.
     status = ((mal_AudioUnitInitialize_proc)pContext->coreaudio.AudioUnitInitialize)((AudioUnit)pDevice->coreaudio.audioUnit);
     if (status != noErr) {
@@ -14849,7 +14849,7 @@ mal_result mal_device_init__coreaudio(mal_context* pContext, mal_device_type dev
         ((mal_AudioComponentInstanceDispose_proc)pContext->coreaudio.AudioComponentInstanceDispose)((AudioUnit)pDevice->coreaudio.audioUnit);
         return mal_result_from_OSStatus(status);
     }
-    
+
 
     return MAL_SUCCESS;
 }
@@ -14857,24 +14857,24 @@ mal_result mal_device_init__coreaudio(mal_context* pContext, mal_device_type dev
 mal_result mal_device__start_backend__coreaudio(mal_device* pDevice)
 {
     mal_assert(pDevice != NULL);
-    
+
     OSStatus status = ((mal_AudioOutputUnitStart_proc)pDevice->pContext->coreaudio.AudioOutputUnitStart)((AudioUnit)pDevice->coreaudio.audioUnit);
     if (status != noErr) {
         return mal_result_from_OSStatus(status);
     }
-    
+
     return MAL_SUCCESS;
 }
 
 mal_result mal_device__stop_backend__coreaudio(mal_device* pDevice)
 {
     mal_assert(pDevice != NULL);
-    
+
     OSStatus status = ((mal_AudioOutputUnitStop_proc)pDevice->pContext->coreaudio.AudioOutputUnitStop)((AudioUnit)pDevice->coreaudio.audioUnit);
     if (status != noErr) {
         return mal_result_from_OSStatus(status);
     }
-    
+
     return MAL_SUCCESS;
 }
 
@@ -14883,7 +14883,7 @@ mal_result mal_context_uninit__coreaudio(mal_context* pContext)
 {
     mal_assert(pContext != NULL);
     mal_assert(pContext->backend == mal_backend_coreaudio);
-    
+
 #if !defined(MAL_NO_RUNTIME_LINKING) && !defined(MAL_APPLE_MOBILE)
     mal_dlclose(pContext->coreaudio.hAudioUnit);
     mal_dlclose(pContext->coreaudio.hCoreAudio);
@@ -14897,27 +14897,27 @@ mal_result mal_context_uninit__coreaudio(mal_context* pContext)
 mal_result mal_context_init__coreaudio(mal_context* pContext)
 {
     mal_assert(pContext != NULL);
-    
+
 #if !defined(MAL_NO_RUNTIME_LINKING) && !defined(MAL_APPLE_MOBILE)
     pContext->coreaudio.hCoreFoundation = mal_dlopen("CoreFoundation.framework/CoreFoundation");
     if (pContext->coreaudio.hCoreFoundation == NULL) {
         return MAL_API_NOT_FOUND;
     }
-    
+
     pContext->coreaudio.CFStringGetCString             = mal_dlsym(pContext->coreaudio.hCoreFoundation, "CFStringGetCString");
-    
-    
+
+
     pContext->coreaudio.hCoreAudio = mal_dlopen("CoreAudio.framework/CoreAudio");
     if (pContext->coreaudio.hCoreAudio == NULL) {
         mal_dlclose(pContext->coreaudio.hCoreFoundation);
         return MAL_API_NOT_FOUND;
     }
-    
+
     pContext->coreaudio.AudioObjectGetPropertyData     = mal_dlsym(pContext->coreaudio.hCoreAudio, "AudioObjectGetPropertyData");
     pContext->coreaudio.AudioObjectGetPropertyDataSize = mal_dlsym(pContext->coreaudio.hCoreAudio, "AudioObjectGetPropertyDataSize");
     pContext->coreaudio.AudioObjectSetPropertyData     = mal_dlsym(pContext->coreaudio.hCoreAudio, "AudioObjectSetPropertyData");
-    
-    
+
+
     // It looks like Apple has moved some APIs from AudioUnit into AudioToolbox on more recent versions of macOS. They are still
     // defined in AudioUnit, but just in case they decide to remove them from there entirely I'm going to implement a fallback.
     // The way it'll work is that it'll first try AudioUnit, and if the required symbols are not present there we'll fall back to
@@ -14928,7 +14928,7 @@ mal_result mal_context_init__coreaudio(mal_context* pContext)
         mal_dlclose(pContext->coreaudio.hCoreFoundation);
         return MAL_API_NOT_FOUND;
     }
-    
+
     if (mal_dlsym(pContext->coreaudio.hAudioUnit, "AudioComponentFindNext") == NULL) {
         // Couldn't find the required symbols in AudioUnit, so fall back to AudioToolbox.
         mal_dlclose(pContext->coreaudio.hAudioUnit);
@@ -14939,7 +14939,7 @@ mal_result mal_context_init__coreaudio(mal_context* pContext)
             return MAL_API_NOT_FOUND;
         }
     }
-    
+
     pContext->coreaudio.AudioComponentFindNext         = mal_dlsym(pContext->coreaudio.hAudioUnit, "AudioComponentFindNext");
     pContext->coreaudio.AudioComponentInstanceDispose  = mal_dlsym(pContext->coreaudio.hAudioUnit, "AudioComponentInstanceDispose");
     pContext->coreaudio.AudioComponentInstanceNew      = mal_dlsym(pContext->coreaudio.hAudioUnit, "AudioComponentInstanceNew");
@@ -14952,13 +14952,13 @@ mal_result mal_context_init__coreaudio(mal_context* pContext)
     pContext->coreaudio.AudioUnitRender                = mal_dlsym(pContext->coreaudio.hAudioUnit, "AudioUnitRender");
 #else
     pContext->coreaudio.CFStringGetCString             = (mal_proc)CFStringGetCString;
-    
+
     #if defined(MAL_APPLE_DESKTOP)
     pContext->coreaudio.AudioObjectGetPropertyData     = (mal_proc)AudioObjectGetPropertyData;
     pContext->coreaudio.AudioObjectGetPropertyDataSize = (mal_proc)AudioObjectGetPropertyDataSize;
     pContext->coreaudio.AudioObjectSetPropertyData     = (mal_proc)AudioObjectSetPropertyData;
     #endif
-    
+
     pContext->coreaudio.AudioComponentFindNext         = (mal_proc)AudioComponentFindNext;
     pContext->coreaudio.AudioComponentInstanceDispose  = (mal_proc)AudioComponentInstanceDispose;
     pContext->coreaudio.AudioComponentInstanceNew      = (mal_proc)AudioComponentInstanceNew;
@@ -14972,7 +14972,7 @@ mal_result mal_context_init__coreaudio(mal_context* pContext)
 #endif
 
     pContext->isBackendAsynchronous = MAL_TRUE;
-    
+
     pContext->onUninit        = mal_context_uninit__coreaudio;
     pContext->onDeviceIDEqual = mal_context_is_device_id_equal__coreaudio;
     pContext->onEnumDevices   = mal_context_enumerate_devices__coreaudio;
@@ -15082,7 +15082,7 @@ mal_format mal_format_from_sio_enc__sndio(unsigned int bits, unsigned int bps, u
     if ((mal_is_little_endian() && le == 0) || (mal_is_big_endian() && le == 1)) {
         return mal_format_unknown;
     }
-    
+
     if (bits ==  8 && bps == 1 && sig == 0) {
         return mal_format_u8;
     }
@@ -15098,21 +15098,21 @@ mal_format mal_format_from_sio_enc__sndio(unsigned int bits, unsigned int bps, u
     if (bits == 32 && bps == 4 && sig == 1) {
         return mal_format_s32;
     }
-    
+
     return mal_format_unknown;
 }
 
 mal_format mal_find_best_format_from_sio_cap__sndio(struct mal_sio_cap* caps)
 {
     mal_assert(caps != NULL);
-    
+
     mal_format bestFormat = mal_format_unknown;
     for (unsigned int iConfig = 0; iConfig < caps->nconf; iConfig += 1) {
         for (unsigned int iEncoding = 0; iEncoding < MAL_SIO_NENC; iEncoding += 1) {
             if ((caps->confs[iConfig].enc & (1UL << iEncoding)) == 0) {
                 continue;
             }
-            
+
             unsigned int bits = caps->enc[iEncoding].bits;
             unsigned int bps  = caps->enc[iEncoding].bps;
             unsigned int sig  = caps->enc[iEncoding].sig;
@@ -15122,7 +15122,7 @@ mal_format mal_find_best_format_from_sio_cap__sndio(struct mal_sio_cap* caps)
             if (format == mal_format_unknown) {
                 continue;   // Format not supported.
             }
-            
+
             if (bestFormat == mal_format_unknown) {
                 bestFormat = format;
             } else {
@@ -15132,7 +15132,7 @@ mal_format mal_find_best_format_from_sio_cap__sndio(struct mal_sio_cap* caps)
             }
         }
     }
-    
+
     return mal_format_unknown;
 }
 
@@ -15140,7 +15140,7 @@ mal_uint32 mal_find_best_channels_from_sio_cap__sndio(struct mal_sio_cap* caps, 
 {
     mal_assert(caps != NULL);
     mal_assert(requiredFormat != mal_format_unknown);
-    
+
     // Just pick whatever configuration has the most channels.
     mal_uint32 maxChannels = 0;
     for (unsigned int iConfig = 0; iConfig < caps->nconf; iConfig += 1) {
@@ -15149,7 +15149,7 @@ mal_uint32 mal_find_best_channels_from_sio_cap__sndio(struct mal_sio_cap* caps, 
             if ((caps->confs[iConfig].enc & (1UL << iEncoding)) == 0) {
                 continue;
             }
-            
+
             unsigned int bits = caps->enc[iEncoding].bits;
             unsigned int bps  = caps->enc[iEncoding].bps;
             unsigned int sig  = caps->enc[iEncoding].sig;
@@ -15159,7 +15159,7 @@ mal_uint32 mal_find_best_channels_from_sio_cap__sndio(struct mal_sio_cap* caps, 
             if (format != requiredFormat) {
                 continue;
             }
-            
+
             // Getting here means the format is supported. Iterate over each channel count and grab the biggest one.
             for (unsigned int iChannel = 0; iChannel < MAL_SIO_NCHAN; iChannel += 1) {
                 unsigned int chan = 0;
@@ -15168,25 +15168,25 @@ mal_uint32 mal_find_best_channels_from_sio_cap__sndio(struct mal_sio_cap* caps, 
                 } else {
                     chan = caps->confs[iConfig].rchan;
                 }
-            
+
                 if ((chan & (1UL << iChannel)) == 0) {
                     continue;
                 }
-                
+
                 unsigned int channels;
                 if (deviceType == mal_device_type_playback) {
                     channels = caps->pchan[iChannel];
                 } else {
                     channels = caps->rchan[iChannel];
                 }
-                
+
                 if (maxChannels < channels) {
                     maxChannels = channels;
                 }
             }
         }
     }
-    
+
     return maxChannels;
 }
 
@@ -15196,17 +15196,17 @@ mal_uint32 mal_find_best_sample_rate_from_sio_cap__sndio(struct mal_sio_cap* cap
     mal_assert(requiredFormat != mal_format_unknown);
     mal_assert(requiredChannels > 0);
     mal_assert(requiredChannels <= MAL_MAX_CHANNELS);
-    
+
     mal_uint32 firstSampleRate = 0; // <-- If the device does not support a standard rate we'll fall back to the first one that's found.
-    
-    mal_uint32 bestSampleRate = 0;    
+
+    mal_uint32 bestSampleRate = 0;
     for (unsigned int iConfig = 0; iConfig < caps->nconf; iConfig += 1) {
         // The encoding should be of requiredFormat.
         for (unsigned int iEncoding = 0; iEncoding < MAL_SIO_NENC; iEncoding += 1) {
             if ((caps->confs[iConfig].enc & (1UL << iEncoding)) == 0) {
                 continue;
             }
-            
+
             unsigned int bits = caps->enc[iEncoding].bits;
             unsigned int bps  = caps->enc[iEncoding].bps;
             unsigned int sig  = caps->enc[iEncoding].sig;
@@ -15216,7 +15216,7 @@ mal_uint32 mal_find_best_sample_rate_from_sio_cap__sndio(struct mal_sio_cap* cap
             if (format != requiredFormat) {
                 continue;
             }
-            
+
             // Getting here means the format is supported. Iterate over each channel count and grab the biggest one.
             for (unsigned int iChannel = 0; iChannel < MAL_SIO_NCHAN; iChannel += 1) {
                 unsigned int chan = 0;
@@ -15225,36 +15225,36 @@ mal_uint32 mal_find_best_sample_rate_from_sio_cap__sndio(struct mal_sio_cap* cap
                 } else {
                     chan = caps->confs[iConfig].rchan;
                 }
-            
+
                 if ((chan & (1UL << iChannel)) == 0) {
                     continue;
                 }
-                
+
                 unsigned int channels;
                 if (deviceType == mal_device_type_playback) {
                     channels = caps->pchan[iChannel];
                 } else {
                     channels = caps->rchan[iChannel];
                 }
-                
+
                 if (channels != requiredChannels) {
                     continue;
                 }
-                
+
                 // Getting here means we have found a compatible encoding/channel pair.
                 for (unsigned int iRate = 0; iRate < MAL_SIO_NRATE; iRate += 1) {
                     mal_uint32 rate = (mal_uint32)caps->rate[iRate];
-                
+
                     if (firstSampleRate == 0) {
                         firstSampleRate = rate;
                     }
-                    
+
                     // Disregard this rate if it's not a standard one.
                     mal_uint32 ratePriority = mal_get_standard_sample_rate_priority_index(rate);
                     if (ratePriority == (mal_uint32)-1) {
                         continue;
                     }
-                    
+
                     if (mal_get_standard_sample_rate_priority_index(bestSampleRate) > ratePriority) {   // Lower = better.
                         bestSampleRate = rate;
                     }
@@ -15262,12 +15262,12 @@ mal_uint32 mal_find_best_sample_rate_from_sio_cap__sndio(struct mal_sio_cap* cap
             }
         }
     }
-    
+
     // If a standard sample rate was not found just fall back to the first one that was iterated.
     if (bestSampleRate == 0) {
         bestSampleRate = firstSampleRate;
     }
-    
+
     return bestSampleRate;
 }
 
@@ -15286,12 +15286,12 @@ mal_result mal_context_enumerate_devices__sndio(mal_context* pContext, mal_enum_
 {
     mal_assert(pContext != NULL);
     mal_assert(callback != NULL);
-    
+
     // sndio doesn't seem to have a good device enumeration API, so I'm therefore only enumerating
     // over default devices for now.
     mal_bool32 isTerminating = MAL_FALSE;
     struct mal_sio_hdl* handle;
-    
+
     // Playback.
     if (!isTerminating) {
         handle = ((mal_sio_open_proc)pContext->sndio.sio_open)(MAL_SIO_DEVANY, MAL_SIO_PLAY, 0);
@@ -15301,13 +15301,13 @@ mal_result mal_context_enumerate_devices__sndio(mal_context* pContext, mal_enum_
             mal_zero_object(&deviceInfo);
             mal_strcpy_s(deviceInfo.id.sndio, sizeof(deviceInfo.id.sndio), MAL_SIO_DEVANY);
             mal_strcpy_s(deviceInfo.name, sizeof(deviceInfo.name), MAL_DEFAULT_PLAYBACK_DEVICE_NAME);
-            
+
             isTerminating = !callback(pContext, mal_device_type_playback, &deviceInfo, pUserData);
-            
+
             ((mal_sio_close_proc)pContext->sndio.sio_close)(handle);
         }
     }
-    
+
     // Capture.
     if (!isTerminating) {
         handle = ((mal_sio_open_proc)pContext->sndio.sio_open)(MAL_SIO_DEVANY, MAL_SIO_REC, 0);
@@ -15319,11 +15319,11 @@ mal_result mal_context_enumerate_devices__sndio(mal_context* pContext, mal_enum_
             mal_strcpy_s(deviceInfo.name, sizeof(deviceInfo.name), MAL_DEFAULT_CAPTURE_DEVICE_NAME);
 
             isTerminating = !callback(pContext, mal_device_type_capture, &deviceInfo, pUserData);
-            
+
             ((mal_sio_close_proc)pContext->sndio.sio_close)(handle);
         }
     }
-    
+
     return MAL_SUCCESS;
 }
 
@@ -15331,7 +15331,7 @@ mal_result mal_context_get_device_info__sndio(mal_context* pContext, mal_device_
 {
     mal_assert(pContext != NULL);
     (void)shareMode;
-    
+
     // We need to open the device before we can get information about it.
     char devid[256];
     if (pDeviceID == NULL) {
@@ -15341,17 +15341,17 @@ mal_result mal_context_get_device_info__sndio(mal_context* pContext, mal_device_
         mal_strcpy_s(devid, sizeof(devid), pDeviceID->sndio);
         mal_strcpy_s(pDeviceInfo->name, sizeof(pDeviceInfo->name), devid);
     }
-    
+
     struct mal_sio_hdl* handle = ((mal_sio_open_proc)pContext->sndio.sio_open)(devid, (deviceType == mal_device_type_playback) ? MAL_SIO_PLAY : MAL_SIO_REC, 0);
     if (handle == NULL) {
         return MAL_NO_DEVICE;
     }
-    
+
     struct mal_sio_cap caps;
     if (((mal_sio_getcap_proc)pContext->sndio.sio_getcap)(handle, &caps) == 0) {
         return MAL_ERROR;
     }
-    
+
     for (unsigned int iConfig = 0; iConfig < caps.nconf; iConfig += 1) {
         // The main thing we care about is that the encoding is supported by mini_al. If it is, we want to give
         // preference to some formats over others.
@@ -15359,7 +15359,7 @@ mal_result mal_context_get_device_info__sndio(mal_context* pContext, mal_device_
             if ((caps.confs[iConfig].enc & (1UL << iEncoding)) == 0) {
                 continue;
             }
-            
+
             unsigned int bits = caps.enc[iEncoding].bits;
             unsigned int bps  = caps.enc[iEncoding].bps;
             unsigned int sig  = caps.enc[iEncoding].sig;
@@ -15369,7 +15369,7 @@ mal_result mal_context_get_device_info__sndio(mal_context* pContext, mal_device_
             if (format == mal_format_unknown) {
                 continue;   // Format not supported.
             }
-            
+
             // Add this format if it doesn't already exist.
             mal_bool32 formatExists = MAL_FALSE;
             for (mal_uint32 iExistingFormat = 0; iExistingFormat < pDeviceInfo->formatCount; iExistingFormat += 1) {
@@ -15378,12 +15378,12 @@ mal_result mal_context_get_device_info__sndio(mal_context* pContext, mal_device_
                     break;
                 }
             }
-            
+
             if (!formatExists) {
                 pDeviceInfo->formats[pDeviceInfo->formatCount++] = format;
             }
         }
-        
+
         // Channels.
         for (unsigned int iChannel = 0; iChannel < MAL_SIO_NCHAN; iChannel += 1) {
             unsigned int chan = 0;
@@ -15392,18 +15392,18 @@ mal_result mal_context_get_device_info__sndio(mal_context* pContext, mal_device_
             } else {
                 chan = caps.confs[iConfig].rchan;
             }
-        
+
             if ((chan & (1UL << iChannel)) == 0) {
                 continue;
             }
-            
+
             unsigned int channels;
             if (deviceType == mal_device_type_playback) {
                 channels = caps.pchan[iChannel];
             } else {
                 channels = caps.rchan[iChannel];
             }
-            
+
             if (pDeviceInfo->minChannels > channels) {
                 pDeviceInfo->minChannels = channels;
             }
@@ -15411,7 +15411,7 @@ mal_result mal_context_get_device_info__sndio(mal_context* pContext, mal_device_
                 pDeviceInfo->maxChannels = channels;
             }
         }
-        
+
         // Sample rates.
         for (unsigned int iRate = 0; iRate < MAL_SIO_NRATE; iRate += 1) {
             if ((caps.confs[iConfig].rate & (1UL << iRate)) != 0) {
@@ -15444,7 +15444,7 @@ mal_result mal_device_init__sndio(mal_context* pContext, mal_device_type deviceT
 
     mal_assert(pDevice != NULL);
     mal_zero_object(&pDevice->sndio);
-    
+
     const char* deviceName = MAL_SIO_DEVANY;
 //#if defined(__FreeBSD__) || defined(__DragonFly__)
 //    deviceName = "rsnd/0";
@@ -15452,28 +15452,28 @@ mal_result mal_device_init__sndio(mal_context* pContext, mal_device_type deviceT
     if (pDeviceID != NULL) {
         deviceName = pDeviceID->sndio;
     }
-    
+
     pDevice->sndio.handle = (mal_ptr)((mal_sio_open_proc)pContext->sndio.sio_open)(deviceName, (deviceType == mal_device_type_playback) ? MAL_SIO_PLAY : MAL_SIO_REC, 0);
     if (pDevice->sndio.handle == NULL) {
         return mal_post_error(pDevice, MAL_LOG_LEVEL_ERROR, "[sndio] Failed to open device.", MAL_FAILED_TO_OPEN_BACKEND_DEVICE);
     }
-    
+
     // We need to retrieve the device caps to determine the most appropriate format to use.
     struct mal_sio_cap caps;
     if (((mal_sio_getcap_proc)pContext->sndio.sio_getcap)((struct mal_sio_hdl*)pDevice->sndio.handle, &caps) == 0) {
         ((mal_sio_close_proc)pContext->sndio.sio_close)((struct mal_sio_hdl*)pDevice->sndio.handle);
         return mal_post_error(pDevice, MAL_LOG_LEVEL_ERROR, "[sndio] Failed to retrieve device caps.", MAL_ERROR);
     }
-    
+
     mal_format desiredFormat = pDevice->format;
     if (pDevice->usingDefaultFormat) {
         desiredFormat = mal_find_best_format_from_sio_cap__sndio(&caps);
     }
-    
+
     if (desiredFormat == mal_format_unknown) {
         desiredFormat = pDevice->format;
     }
-    
+
 
     // Note: sndio reports a huge range of available channels. This is inconvenient for us because there's no real
     // way, as far as I can tell, to get the _actual_ channel count of the device. I'm therefore restricting this
@@ -15492,22 +15492,22 @@ mal_result mal_device_init__sndio(mal_context* pContext, mal_device_type deviceT
         desiredChannels = pDevice->channels;
     }
 
-    
+
     mal_uint32 desiredSampleRate = pDevice->sampleRate;
     if (pDevice->usingDefaultSampleRate) {
         desiredSampleRate = mal_find_best_sample_rate_from_sio_cap__sndio(&caps, deviceType, desiredFormat, desiredChannels);
     }
-    
+
     if (desiredSampleRate == 0) {
         desiredSampleRate = pDevice->sampleRate;
     }
-    
-    
+
+
     struct mal_sio_par par;
     ((mal_sio_initpar_proc)pDevice->pContext->sndio.sio_initpar)(&par);
     par.msb = 0;
     par.le  = mal_is_little_endian();
-    
+
     switch (desiredFormat) {
         case mal_format_u8:
         {
@@ -15515,21 +15515,21 @@ mal_result mal_device_init__sndio(mal_context* pContext, mal_device_type deviceT
             par.bps  = 1;
             par.sig  = 0;
         } break;
-        
+
         case mal_format_s24:
         {
             par.bits = 24;
             par.bps  = 3;
             par.sig  = 1;
         } break;
-        
+
         case mal_format_s32:
         {
             par.bits = 32;
             par.bps  = 4;
             par.sig  = 1;
         } break;
-        
+
         case mal_format_s16:
         case mal_format_f32:
         default:
@@ -15539,7 +15539,7 @@ mal_result mal_device_init__sndio(mal_context* pContext, mal_device_type deviceT
             par.sig  = 1;
         } break;
     }
-    
+
     if (deviceType == mal_device_type_playback) {
         par.pchan = desiredChannels;
     } else {
@@ -15547,7 +15547,7 @@ mal_result mal_device_init__sndio(mal_context* pContext, mal_device_type deviceT
     }
 
     par.rate = desiredSampleRate;
-    
+
     // Try calculating an appropriate default buffer size after we have the sample rate.
     mal_uint32 desiredBufferSizeInFrames = pDevice->bufferSizeInFrames;
     if (pDevice->usingDefaultBufferSize) {
@@ -15562,10 +15562,10 @@ mal_result mal_device_init__sndio(mal_context* pContext, mal_device_type deviceT
 
         desiredBufferSizeInFrames = mal_calculate_default_buffer_size_in_frames(pConfig->performanceProfile, par.rate, fCPUSpeed*fDeviceType*fBackend);
     }
-    
+
     par.round = desiredBufferSizeInFrames / pDevice->periods;
     par.appbufsz = par.round * pDevice->periods;
-    
+
     if (((mal_sio_setpar_proc)pContext->sndio.sio_setpar)((struct mal_sio_hdl*)pDevice->sndio.handle, &par) == 0) {
         ((mal_sio_close_proc)pContext->sndio.sio_close)((struct mal_sio_hdl*)pDevice->sndio.handle);
         return mal_post_error(pDevice, MAL_LOG_LEVEL_ERROR, "[sndio] Failed to set buffer size.", MAL_FORMAT_NOT_SUPPORTED);
@@ -15574,15 +15574,15 @@ mal_result mal_device_init__sndio(mal_context* pContext, mal_device_type deviceT
         ((mal_sio_close_proc)pContext->sndio.sio_close)((struct mal_sio_hdl*)pDevice->sndio.handle);
         return mal_post_error(pDevice, MAL_LOG_LEVEL_ERROR, "[sndio] Failed to retrieve buffer size.", MAL_FORMAT_NOT_SUPPORTED);
     }
-    
+
     pDevice->internalFormat = mal_format_from_sio_enc__sndio(par.bits, par.bps, par.sig, par.le, par.msb);
-    
+
     if (deviceType == mal_device_type_playback) {
         pDevice->internalChannels = par.pchan;
     } else {
         pDevice->internalChannels = par.rchan;
     }
-    
+
     pDevice->internalSampleRate = par.rate;
 
     pDevice->periods = par.appbufsz / par.round;
@@ -15591,15 +15591,15 @@ mal_result mal_device_init__sndio(mal_context* pContext, mal_device_type deviceT
     }
     pDevice->bufferSizeInFrames = par.round * pDevice->periods;
     pDevice->sndio.fragmentSizeInFrames = par.round;
-    
+
     mal_get_standard_channel_map(mal_standard_channel_map_sndio, pDevice->internalChannels, pDevice->internalChannelMap);
-    
+
     pDevice->sndio.pIntermediaryBuffer = mal_malloc(pDevice->sndio.fragmentSizeInFrames * mal_get_bytes_per_frame(pDevice->internalFormat, pDevice->internalChannels));
     if (pDevice->sndio.pIntermediaryBuffer == NULL) {
         ((mal_sio_close_proc)pContext->sndio.sio_close)((struct mal_sio_hdl*)pDevice->sndio.handle);
         return mal_post_error(pDevice, MAL_LOG_LEVEL_ERROR, "[sndio] Failed to allocate memory for intermediary buffer.", MAL_OUT_OF_MEMORY);
     }
-    
+
 #ifdef MAL_DEBUG_OUTPUT
     printf("DEVICE INFO\n");
     printf("    Format:      %s\n", mal_get_format_name(pDevice->internalFormat));
@@ -15610,14 +15610,14 @@ mal_result mal_device_init__sndio(mal_context* pContext, mal_device_type deviceT
     printf("    appbufsz:    %d\n", par.appbufsz);
     printf("    round:       %d\n", par.round);
 #endif
-    
+
     return MAL_SUCCESS;
 }
 
 mal_result mal_device__start_backend__sndio(mal_device* pDevice)
 {
     mal_assert(pDevice != NULL);
-    
+
     if (((mal_sio_start_proc)pDevice->pContext->sndio.sio_start)((struct mal_sio_hdl*)pDevice->sndio.handle) == 0) {
         return mal_post_error(pDevice, MAL_LOG_LEVEL_ERROR, "[sndio] Failed to start backend device.", MAL_FAILED_TO_START_BACKEND_DEVICE);
     }
@@ -15628,7 +15628,7 @@ mal_result mal_device__start_backend__sndio(mal_device* pDevice)
     // call to read().
     if (pDevice->type == mal_device_type_playback) {
         // Playback. Need to load the entire buffer, which means we need to write a fragment for each period.
-        for (mal_uint32 iPeriod = 0; iPeriod < pDevice->periods; iPeriod += 1) { 
+        for (mal_uint32 iPeriod = 0; iPeriod < pDevice->periods; iPeriod += 1) {
             mal_device__read_frames_from_client(pDevice, pDevice->sndio.fragmentSizeInFrames, pDevice->sndio.pIntermediaryBuffer);
 
             int bytesWritten = ((mal_sio_write_proc)pDevice->pContext->sndio.sio_write)((struct mal_sio_hdl*)pDevice->sndio.handle, pDevice->sndio.pIntermediaryBuffer, pDevice->sndio.fragmentSizeInFrames * mal_get_bytes_per_frame(pDevice->internalFormat, pDevice->internalChannels));
@@ -15706,7 +15706,7 @@ mal_result mal_context_uninit__sndio(mal_context* pContext)
 mal_result mal_context_init__sndio(mal_context* pContext)
 {
     mal_assert(pContext != NULL);
-    
+
 #ifndef MAL_NO_RUNTIME_LINKING
     // libpulse.so
     const char* libsndioNames[] = {
@@ -15723,7 +15723,7 @@ mal_result mal_context_init__sndio(mal_context* pContext)
     if (pContext->sndio.sndioSO == NULL) {
         return MAL_NO_BACKEND;
     }
-    
+
     pContext->sndio.sio_open    = (mal_proc)mal_dlsym(pContext->sndio.sndioSO, "sio_open");
     pContext->sndio.sio_close   = (mal_proc)mal_dlsym(pContext->sndio.sndioSO, "sio_close");
     pContext->sndio.sio_setpar  = (mal_proc)mal_dlsym(pContext->sndio.sndioSO, "sio_setpar");
@@ -15781,10 +15781,10 @@ void mal_construct_device_id__audioio(char* id, size_t idSize, const char* base,
     mal_assert(id != NULL);
     mal_assert(idSize > 0);
     mal_assert(deviceIndex >= 0);
-    
+
     size_t baseLen = strlen(base);
     mal_assert(idSize > baseLen);
-    
+
     mal_strcpy_s(id, idSize, base);
     mal_itoa_s(deviceIndex, id+baseLen, idSize-baseLen, 10);
 }
@@ -15794,26 +15794,26 @@ mal_result mal_extract_device_index_from_id__audioio(const char* id, const char*
     mal_assert(id != NULL);
     mal_assert(base != NULL);
     mal_assert(pIndexOut != NULL);
-    
+
     size_t idLen = strlen(id);
     size_t baseLen = strlen(base);
     if (idLen <= baseLen) {
         return MAL_ERROR;   // Doesn't look like the id starts with the base.
     }
-    
+
     if (strncmp(id, base, baseLen) != 0) {
         return MAL_ERROR;   // ID does not begin with base.
     }
-    
+
     const char* deviceIndexStr = id + baseLen;
     if (deviceIndexStr[0] == '\0') {
         return MAL_ERROR;   // No index specified in the ID.
     }
-    
+
     if (pIndexOut) {
         *pIndexOut = atoi(deviceIndexStr);
     }
-    
+
     return MAL_SUCCESS;
 }
 
@@ -15864,7 +15864,7 @@ mal_result mal_context_get_device_info_from_fd__audioio(mal_context* pContext, m
     mal_assert(pContext != NULL);
     mal_assert(fd >= 0);
     mal_assert(pInfoOut != NULL);
-    
+
     (void)pContext;
     (void)deviceType;
 
@@ -15876,7 +15876,7 @@ mal_result mal_context_get_device_info_from_fd__audioio(mal_context* pContext, m
     // Name.
     mal_strcpy_s(pInfoOut->name, sizeof(pInfoOut->name), fdDevice.name);
 
-    // Supported formats. We get this by looking at the encodings. 
+    // Supported formats. We get this by looking at the encodings.
     int counter = 0;
     for (;;) {
         audio_encoding_t encoding;
@@ -15900,7 +15900,7 @@ mal_result mal_context_get_device_info_from_fd__audioio(mal_context* pContext, m
     }
 
     if (deviceType == mal_device_type_playback) {
-        pInfoOut->minChannels = fdInfo.play.channels; 
+        pInfoOut->minChannels = fdInfo.play.channels;
         pInfoOut->maxChannels = fdInfo.play.channels;
         pInfoOut->minSampleRate = fdInfo.play.sample_rate;
         pInfoOut->maxSampleRate = fdInfo.play.sample_rate;
@@ -15910,7 +15910,7 @@ mal_result mal_context_get_device_info_from_fd__audioio(mal_context* pContext, m
         pInfoOut->minSampleRate = fdInfo.record.sample_rate;
         pInfoOut->maxSampleRate = fdInfo.record.sample_rate;
     }
-    
+
     return MAL_SUCCESS;
 }
 
@@ -15918,16 +15918,16 @@ mal_result mal_context_enumerate_devices__audioio(mal_context* pContext, mal_enu
 {
     mal_assert(pContext != NULL);
     mal_assert(callback != NULL);
-    
+
     const int maxDevices = 64;
-    
+
     // Every device will be named "/dev/audioN", with a "/dev/audioctlN" equivalent. We use the "/dev/audioctlN"
     // version here since we can open it even when another process has control of the "/dev/audioN" device.
     char devpath[256];
     for (int iDevice = 0; iDevice < maxDevices; ++iDevice) {
         mal_strcpy_s(devpath, sizeof(devpath), "/dev/audioctl");
         mal_itoa_s(iDevice, devpath+strlen(devpath), sizeof(devpath)-strlen(devpath), 10);
-    
+
         struct stat st;
         if (stat(devpath, &st) < 0) {
             break;
@@ -15936,7 +15936,7 @@ mal_result mal_context_enumerate_devices__audioio(mal_context* pContext, mal_enu
         // The device exists, but we need to check if it's usable as playback and/or capture.
         int fd;
         mal_bool32 isTerminating = MAL_FALSE;
-        
+
         // Playback.
         if (!isTerminating) {
             fd = open(devpath, O_RDONLY, 0);
@@ -15948,11 +15948,11 @@ mal_result mal_context_enumerate_devices__audioio(mal_context* pContext, mal_enu
                 if (mal_context_get_device_info_from_fd__audioio(pContext, mal_device_type_playback, fd, &deviceInfo) == MAL_SUCCESS) {
                     isTerminating = !callback(pContext, mal_device_type_playback, &deviceInfo, pUserData);
                 }
-                
+
                 close(fd);
             }
         }
-        
+
         // Capture.
         if (!isTerminating) {
             fd = open(devpath, O_WRONLY, 0);
@@ -15964,16 +15964,16 @@ mal_result mal_context_enumerate_devices__audioio(mal_context* pContext, mal_enu
                 if (mal_context_get_device_info_from_fd__audioio(pContext, mal_device_type_capture, fd, &deviceInfo) == MAL_SUCCESS) {
                     isTerminating = !callback(pContext, mal_device_type_capture, &deviceInfo, pUserData);
                 }
-                
+
                 close(fd);
             }
         }
-        
+
         if (isTerminating) {
             break;
         }
     }
-    
+
     return MAL_SUCCESS;
 }
 
@@ -15981,7 +15981,7 @@ mal_result mal_context_get_device_info__audioio(mal_context* pContext, mal_devic
 {
     mal_assert(pContext != NULL);
     (void)shareMode;
-    
+
     // We need to open the "/dev/audioctlN" device to get the info. To do this we need to extract the number
     // from the device ID which will be in "/dev/audioN" format.
     int fd = -1;
@@ -15996,23 +15996,23 @@ mal_result mal_context_get_device_info__audioio(mal_context* pContext, mal_devic
         if (result != MAL_SUCCESS) {
             return result;
         }
-        
+
         mal_construct_device_id__audioio(ctlid, sizeof(ctlid), "/dev/audioctl", deviceIndex);
     }
-    
+
     fd = open(ctlid, (deviceType == mal_device_type_playback) ? O_WRONLY : O_RDONLY, 0);
     if (fd == -1) {
         return MAL_NO_DEVICE;
     }
-    
+
     if (deviceIndex == -1) {
         mal_strcpy_s(pDeviceInfo->id.audioio, sizeof(pDeviceInfo->id.audioio), "/dev/audio");
     } else {
         mal_construct_device_id__audioio(pDeviceInfo->id.audioio, sizeof(pDeviceInfo->id.audioio), "/dev/audio", deviceIndex);
     }
-    
+
     mal_result result = mal_context_get_device_info_from_fd__audioio(pContext, deviceType, fd, pDeviceInfo);
-    
+
     close(fd);
     return result;
 }
@@ -16031,13 +16031,13 @@ mal_result mal_device_init__audioio(mal_context* pContext, mal_device_type devic
 
     mal_assert(pDevice != NULL);
     mal_zero_object(&pDevice->audioio);
-    
+
     // The first thing to do is open the file.
     const char* deviceName = "/dev/audio";
     if (pDeviceID != NULL) {
         deviceName = pDeviceID->audioio;
     }
-    
+
     pDevice->audioio.fd = open(deviceName, (deviceType == mal_device_type_playback) ? O_WRONLY : O_RDONLY, 0);
     if (pDevice->audioio.fd == -1) {
         return mal_post_error(pDevice, MAL_LOG_LEVEL_ERROR, "[audioio] Failed to open device.", MAL_FAILED_TO_OPEN_BACKEND_DEVICE);
@@ -16096,19 +16096,19 @@ mal_result mal_device_init__audioio(mal_context* pContext, mal_device_type devic
 
     prinfo->channels = nativeInfo.maxChannels;
     prinfo->sample_rate = nativeInfo.maxSampleRate;
-    
+
     // We need to apply the settings so far so we can get back the actual sample rate which we need for calculating
     // the default buffer size below.
     if (ioctl(pDevice->audioio.fd, AUDIO_SETINFO, &fdInfo) < 0) {
         close(pDevice->audioio.fd);
         return mal_post_error(pDevice, MAL_LOG_LEVEL_ERROR, "[audioio] Failed to set device format. AUDIO_SETINFO failed.", MAL_FORMAT_NOT_SUPPORTED);
     }
-    
+
     if (ioctl(pDevice->audioio.fd, AUDIO_GETINFO, &fdInfo) < 0) {
         close(pDevice->audioio.fd);
         return mal_post_error(pDevice, MAL_LOG_LEVEL_ERROR, "[audioio] AUDIO_GETINFO failed.", MAL_FORMAT_NOT_SUPPORTED);
     }
-    
+
     pDevice->internalFormat = mal_format_from_prinfo__audioio(prinfo);
     if (pDevice->internalFormat == mal_format_unknown) {
         close(pDevice->audioio.fd);
@@ -16140,7 +16140,7 @@ mal_result mal_device_init__audioio(mal_context* pContext, mal_device_type devic
         fragmentSizeInBytes = 16;
     }
 
-    
+
     AUDIO_INITINFO(&fdInfo);
     fdInfo.blocksize = fragmentSizeInBytes;
     fdInfo.hiwat = mal_max(pDevice->periods, 5);
@@ -16149,7 +16149,7 @@ mal_result mal_device_init__audioio(mal_context* pContext, mal_device_type devic
         close(pDevice->audioio.fd);
         return mal_post_error(pDevice, MAL_LOG_LEVEL_ERROR, "[audioio] Failed to set internal buffer size. AUDIO_SETINFO failed.", MAL_FORMAT_NOT_SUPPORTED);
     }
-    
+
     pDevice->periods = fdInfo.hiwat;
     pDevice->bufferSizeInFrames = (fdInfo.blocksize * fdInfo.hiwat) / mal_get_bytes_per_frame(pDevice->internalFormat, pDevice->internalChannels);
 
@@ -16160,7 +16160,7 @@ mal_result mal_device_init__audioio(mal_context* pContext, mal_device_type devic
     // using mini_al's default channel map for now.
     mal_get_standard_channel_map(mal_standard_channel_map_default, pDevice->internalChannels, pDevice->internalChannelMap);
 
-    
+
     // When not using MMAP mode we need to use an intermediary buffer to the data transfer between the client
     // and device. Everything is done by the size of a fragment.
     pDevice->audioio.pIntermediaryBuffer = mal_malloc(fdInfo.blocksize);
@@ -16169,7 +16169,7 @@ mal_result mal_device_init__audioio(mal_context* pContext, mal_device_type devic
         return mal_post_error(pDevice, MAL_LOG_LEVEL_ERROR, "[audioio] Failed to allocate memory for intermediary buffer.", MAL_OUT_OF_MEMORY);
     }
 
-    
+
     return MAL_SUCCESS;
 }
 
@@ -16183,7 +16183,7 @@ mal_result mal_device__start_backend__audioio(mal_device* pDevice)
     // call to read().
     if (pDevice->type == mal_device_type_playback) {
         // Playback. Need to load the entire buffer, which means we need to write a fragment for each period.
-        for (mal_uint32 iPeriod = 0; iPeriod < pDevice->periods; iPeriod += 1) { 
+        for (mal_uint32 iPeriod = 0; iPeriod < pDevice->periods; iPeriod += 1) {
             mal_device__read_frames_from_client(pDevice, pDevice->audioio.fragmentSizeInFrames, pDevice->audioio.pIntermediaryBuffer);
 
             int bytesWritten = write(pDevice->audioio.fd, pDevice->audioio.pIntermediaryBuffer, pDevice->audioio.fragmentSizeInFrames * mal_get_bytes_per_frame(pDevice->internalFormat, pDevice->internalChannels));
@@ -19035,7 +19035,7 @@ mal_result mal_device__stop_backend__sdl(mal_device* pDevice)
     {
         ((MAL_PFN_SDL_PauseAudio)pDevice->pContext->sdl.SDL_PauseAudio)(1);
     }
-    
+
     mal_device__set_state(pDevice, MAL_STATE_STOPPED);
     mal_stop_proc onStop = pDevice->onStop;
     if (onStop) {
@@ -20715,7 +20715,7 @@ void mal_get_standard_channel_map(mal_standard_channel_map standardChannelMap, m
         {
             mal_get_standard_channel_map_vorbis(channels, channelMap);
         } break;
-        
+
         case mal_standard_channel_map_sndio:
         {
             mal_get_standard_channel_map_sndio(channels, channelMap);
@@ -21501,7 +21501,7 @@ void mal_pcm_s24_to_u8__reference(void* dst, const void* src, mal_uint64 count, 
             } else {
                 x = 0x7FFFFFFF;
             }
-            
+
             x = x >> 24;
             x = x + 128;
             dst_u8[i] = (mal_uint8)x;
@@ -21835,7 +21835,7 @@ void mal_pcm_s32_to_u8__reference(void* dst, const void* src, mal_uint64 count, 
             } else {
                 x = 0x7FFFFFFF;
             }
-            
+
             x = x >> 24;
             x = x + 128;
             dst_u8[i] = (mal_uint8)x;
@@ -21907,7 +21907,7 @@ void mal_pcm_s32_to_s16__reference(void* dst, const void* src, mal_uint64 count,
             } else {
                 x = 0x7FFFFFFF;
             }
-            
+
             x = x >> 16;
             dst_s16[i] = (mal_int16)x;
         }
@@ -22257,7 +22257,7 @@ void mal_pcm_f32_to_s16__optimized(void* dst, const void* src, mal_uint64 count,
         float d1 = mal_dither_f32(ditherMode, ditherMin, ditherMax);
         float d2 = mal_dither_f32(ditherMode, ditherMin, ditherMax);
         float d3 = mal_dither_f32(ditherMode, ditherMin, ditherMax);
-        
+
         float x0 = src_f32[i+0];
         float x1 = src_f32[i+1];
         float x2 = src_f32[i+2];
@@ -22364,7 +22364,7 @@ void mal_pcm_f32_to_s16__sse2(void* dst, const void* src, mal_uint64 count, mal_
         x1 = _mm_mul_ps(x1, _mm_set1_ps(32767.0f));
 
         _mm_stream_si128(((__m128i*)(dst_s16 + i)), _mm_packs_epi32(_mm_cvttps_epi32(x0), _mm_cvttps_epi32(x1)));
-        
+
         i += 8;
     }
 
@@ -23765,7 +23765,7 @@ float mal_calculate_channel_position_planar_weight(mal_channel channelPositionA,
     // taken by the other to produce the final contribution.
 
     // Contribution = Sum(Volume to Give * Volume to Take)
-    float contribution = 
+    float contribution =
         g_malChannelPlaneRatios[channelPositionA][0] * g_malChannelPlaneRatios[channelPositionB][0] +
         g_malChannelPlaneRatios[channelPositionA][1] * g_malChannelPlaneRatios[channelPositionB][1] +
         g_malChannelPlaneRatios[channelPositionA][2] * g_malChannelPlaneRatios[channelPositionB][2] +
@@ -24108,7 +24108,7 @@ void mal_channel_router__do_routing(mal_channel_router* pRouter, mal_uint64 fram
                     }
 
                     iFrame += frameCount4*4;
-                } else 
+                } else
 #endif
                 {   // Reference.
                     float weight0 = pRouter->weights[iChannelIn][iChannelOut];
@@ -24503,7 +24503,7 @@ mal_uint64 mal_src_read_deinterleaved__linear(mal_src* pSRC, mal_uint64 frameCou
         for (mal_uint32 iChannel = 0; iChannel < pSRC->config.channels; ++iChannel) {
             ppSamplesFromClient[iChannel] = pSRC->linear.input[iChannel] + pSRC->linear.leftoverFrames;
         }
-        
+
         mal_uint32 framesReadFromClient = 0;
         if (framesToReadFromClient > pSRC->linear.leftoverFrames) {
             framesReadFromClient = (mal_uint32)pSRC->config.onReadDeinterleaved(pSRC, (mal_uint32)framesToReadFromClient - pSRC->linear.leftoverFrames, (void**)ppSamplesFromClient, pUserData);
@@ -24547,7 +24547,7 @@ mal_uint64 mal_src_read_deinterleaved__linear(mal_src* pSRC, mal_uint64 frameCou
                 float iPrevSample1 = (float)floor(t1);
                 float iPrevSample2 = (float)floor(t2);
                 float iPrevSample3 = (float)floor(t3);
-                
+
                 float iNextSample0 = iPrevSample0 + 1;
                 float iNextSample1 = iPrevSample1 + 1;
                 float iNextSample2 = iPrevSample2 + 1;
@@ -24562,7 +24562,7 @@ mal_uint64 mal_src_read_deinterleaved__linear(mal_src* pSRC, mal_uint64 frameCou
                 float prevSample1 = ppSamplesFromClient[iChannel][(mal_uint32)iPrevSample1];
                 float prevSample2 = ppSamplesFromClient[iChannel][(mal_uint32)iPrevSample2];
                 float prevSample3 = ppSamplesFromClient[iChannel][(mal_uint32)iPrevSample3];
-                
+
                 float nextSample0 = ppSamplesFromClient[iChannel][(mal_uint32)iNextSample0];
                 float nextSample1 = ppSamplesFromClient[iChannel][(mal_uint32)iNextSample1];
                 float nextSample2 = ppSamplesFromClient[iChannel][(mal_uint32)iNextSample2];
@@ -24620,7 +24620,7 @@ mal_uint64 mal_src_read_deinterleaved__linear(mal_src* pSRC, mal_uint64 frameCou
             }
         }
 
-        
+
         // Exit the loop if we've found everything from the client.
         if (framesReadFromClient < framesToReadFromClient) {
             break;
@@ -24692,7 +24692,7 @@ static MAL_INLINE float mal_src_sinc__get_input_sample_from_window(const mal_src
 
     // The window should always be contained within the input cache.
     mal_assert(windowPosInSamples <  mal_countof(pSRC->sinc.input[0]) - pSRC->config.sinc.windowWidth);
-    
+
     return pSRC->sinc.input[channel][windowPosInSamples + pSRC->config.sinc.windowWidth + sampleIndex];
 }
 
@@ -24743,7 +24743,7 @@ static MAL_INLINE __m128 mal_src_sinc__interpolation_factor__sse2(const mal_src*
     __m128i ixabs = _mm_cvttps_epi32(xabs);
 
     int* ixabsv = (int*)&ixabs;
-    
+
     __m128 lo = _mm_set_ps(
         pSRC->sinc.table[ixabsv[3]],
         pSRC->sinc.table[ixabsv[2]],
@@ -24789,7 +24789,7 @@ static MAL_INLINE __m256 mal_src_sinc__interpolation_factor__avx2(const mal_src*
     __m256i ixabs = _mm256_cvttps_epi32(xabs);
     __m256 a = _mm256_sub_ps(xabs, _mm256_cvtepi32_ps(ixabs));
 
-    
+
     int* ixabsv = (int*)&ixabs;
 
     __m256 lo = _mm256_set_ps(
@@ -24802,7 +24802,7 @@ static MAL_INLINE __m256 mal_src_sinc__interpolation_factor__avx2(const mal_src*
         pSRC->sinc.table[ixabsv[1]],
         pSRC->sinc.table[ixabsv[0]]
     );
-    
+
     __m256 hi = _mm256_set_ps(
         pSRC->sinc.table[ixabsv[7]+1],
         pSRC->sinc.table[ixabsv[6]+1],
@@ -24836,7 +24836,7 @@ static MAL_INLINE float32x4_t mal_src_sinc__interpolation_factor__neon(const mal
     int32x4_t ixabs = vcvtq_s32_f32(xabs);
 
     int* ixabsv = (int*)&ixabs;
-    
+
     float lo[4];
     lo[0] = pSRC->sinc.table[ixabsv[0]];
     lo[1] = pSRC->sinc.table[ixabsv[1]];
@@ -24966,7 +24966,7 @@ mal_uint64 mal_src_read_deinterleaved__sinc(mal_src* pSRC, mal_uint64 frameCount
                         ixabs[iWindow8] = _mm256_cvttps_epi32(xabs);
                             a[iWindow8] = _mm256_sub_ps(xabs, _mm256_cvtepi32_ps(ixabs[iWindow8]));
                     }
-                    
+
                     for (mal_int32 iWindow8 = 0; iWindow8 < windowWidth8; iWindow8 += 1) {
                         int* ixabsv = (int*)&ixabs[iWindow8];
 
@@ -24980,7 +24980,7 @@ mal_uint64 mal_src_read_deinterleaved__sinc(mal_src* pSRC, mal_uint64 frameCount
                             pSRC->sinc.table[ixabsv[1]],
                             pSRC->sinc.table[ixabsv[0]]
                         );
-    
+
                         __m256 hi = _mm256_set_ps(
                             pSRC->sinc.table[ixabsv[7]+1],
                             pSRC->sinc.table[ixabsv[6]+1],
@@ -25056,7 +25056,7 @@ mal_uint64 mal_src_read_deinterleaved__sinc(mal_src* pSRC, mal_uint64 frameCount
                     iWindow += 1;   // The first one is a dummy for SIMD alignment purposes. Skip it.
                 }
 
-                // Non-SIMD/Reference implementation. 
+                // Non-SIMD/Reference implementation.
                 float t = (timeIn - iTimeIn);
                 for (; iWindow < windowWidth2; iWindow += 1) {
                     float s = windowSamples[iWindow];
@@ -25741,7 +25741,7 @@ mal_uint64 mal_convert_frames_ex(void* pOut, mal_format formatOut, mal_uint32 ch
     } else {
         mal_get_standard_channel_map(mal_standard_channel_map_default, config.channelsIn, config.channelMapIn);
     }
-    
+
     config.formatOut = formatOut;
     config.channelsOut = channelsOut;
     config.sampleRateOut = sampleRateOut;
@@ -27187,7 +27187,7 @@ mal_result mal_decoder_seek_to_frame(mal_decoder* pDecoder, mal_uint64 frameInde
 mal_result mal_decoder__full_decode_and_uninit(mal_decoder* pDecoder, mal_decoder_config* pConfigOut, mal_uint64* pFrameCountOut, void** ppDataOut)
 {
     mal_assert(pDecoder != NULL);
-    
+
     mal_uint64 totalFrameCount = 0;
     mal_uint64 bpf = mal_get_bytes_per_frame(pDecoder->outputFormat, pDecoder->outputChannels);
 
@@ -27229,7 +27229,7 @@ mal_result mal_decoder__full_decode_and_uninit(mal_decoder* pDecoder, mal_decode
         }
     }
 
-    
+
     if (pConfigOut != NULL) {
         pConfigOut->format = pDecoder->outputFormat;
         pConfigOut->channels = pDecoder->outputChannels;
@@ -27266,7 +27266,7 @@ mal_result mal_decode_file(const char* pFilePath, mal_decoder_config* pConfig, m
     }
 
     mal_decoder_config config = mal_decoder_config_init_copy(pConfig);
-    
+
     mal_decoder decoder;
     mal_result result = mal_decoder_init_file(pFilePath, &config, &decoder);
     if (result != MAL_SUCCESS) {
@@ -27291,7 +27291,7 @@ mal_result mal_decode_memory(const void* pData, size_t dataSize, mal_decoder_con
     }
 
     mal_decoder_config config = mal_decoder_config_init_copy(pConfig);
-    
+
     mal_decoder decoder;
     mal_result result = mal_decoder_init_memory(pData, dataSize, &config, &decoder);
     if (result != MAL_SUCCESS) {

@@ -4286,7 +4286,7 @@ MA_API ma_job ma_job_init(ma_uint16 code)
     
     MA_ZERO_OBJECT(&job);
     job.toc.code = code;
-    job.toc.slot = MA_JOB_SLOT_NONE;    /* Temp value. Will be allocated when posted to a queue. */
+    job.toc.slot = (ma_uint16)MA_JOB_SLOT_NONE;    /* Temp value. Will be allocated when posted to a queue. */
     job.next     = MA_JOB_ID_NONE;
 
     return job;

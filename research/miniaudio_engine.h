@@ -1655,6 +1655,7 @@ MA_API void ma_engine_data_callback(ma_engine* pEngine, void* pOutput, const voi
 
 MA_API ma_result ma_engine_start(ma_engine* pEngine);
 MA_API ma_result ma_engine_stop(ma_engine* pEngine);
+MA_API ma_result ma_engine_started(ma_engine* pEngine);
 MA_API ma_result ma_engine_set_volume(ma_engine* pEngine, float volume);
 MA_API ma_result ma_engine_set_gain_db(ma_engine* pEngine, float gainDB);
 
@@ -9086,6 +9087,19 @@ MA_API ma_result ma_engine_stop(ma_engine* pEngine)
     }
 
     return MA_SUCCESS;
+}
+
+// :mc-edit New API fn
+MA_API ma_result ma_engine_started(ma_engine* pEngine)
+{
+    ma_bool32 result;
+
+    if (pEngine == NULL) {
+        return MA_FALSE;
+    }
+
+    result = ma_device_is_started(pEngine->pDevice);
+    return result;
 }
 
 MA_API ma_result ma_engine_set_volume(ma_engine* pEngine, float volume)

@@ -8838,7 +8838,8 @@ MA_API ma_result ma_engine_init(const ma_engine_config* pConfig, ma_engine* pEng
 {
     ma_result result;
     ma_engine_config engineConfig;
-    ma_context_config contextConfig;
+    // :mc-edit This is not being used. We instead have to setup the engine->pContext ourselves.
+    // ma_context_config contextConfig;
 
     /* The config is allowed to be NULL in which case we use defaults for everything. */
     if (pConfig != NULL) {
@@ -8863,10 +8864,10 @@ MA_API ma_result ma_engine_init(const ma_engine_config* pConfig, ma_engine* pEng
     pEngine->periodSizeInMilliseconds = engineConfig.periodSizeInMilliseconds;
     ma_allocation_callbacks_init_copy(&pEngine->allocationCallbacks, &engineConfig.allocationCallbacks);
 
-
     /* We need a context before we'll be able to create the default listener. */
-    contextConfig = ma_context_config_init();
-    contextConfig.allocationCallbacks = pEngine->allocationCallbacks;
+    // :mc-edit
+    //contextConfig = ma_context_config_init();
+    //contextConfig.allocationCallbacks = pEngine->allocationCallbacks;
 
     /* If we don't have a device, we need one. */
     if (pEngine->pDevice == NULL) {

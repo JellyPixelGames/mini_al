@@ -6048,7 +6048,7 @@ MA_API ma_result ma_resource_manager_data_stream_init(ma_resource_manager* pReso
 
     if (pDataStream == NULL) {
         if (pNotification != NULL) {
-            ma_async_notification_signal(pNotification, MA_NOTIFICATION_COMPLETE);
+            ma_async_notification_signal(pNotification, MA_NOTIFICATION_FAILED); // :mc-edit changed this to MA_NOTIFICATION_FAILED.
         }
 
         return MA_INVALID_ARGS;
@@ -6069,7 +6069,7 @@ MA_API ma_result ma_resource_manager_data_stream_init(ma_resource_manager* pReso
 
     if (pResourceManager == NULL || pFilePath == NULL) {
         if (pNotification != NULL) {
-            ma_async_notification_signal(pNotification, MA_NOTIFICATION_COMPLETE);
+            ma_async_notification_signal(pNotification, MA_NOTIFICATION_FAILED); // :mc-edit changed this to MA_NOTIFICATION_FAILED.
         }
 
         return MA_INVALID_ARGS;

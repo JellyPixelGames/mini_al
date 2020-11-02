@@ -42783,8 +42783,7 @@ MA_API ma_result ma_default_vfs_init(ma_default_vfs* pVFS, const ma_allocation_c
     return MA_SUCCESS;
 }
 
-
-MA_API ma_result ma_vfs_or_default_open(ma_default_vfs* pVFS, const char* pFilePath, ma_uint32 openMode, ma_vfs_file* pFile)
+MA_API ma_result ma_vfs_or_default_open(ma_vfs* pVFS, const char* pFilePath, ma_uint32 openMode, ma_vfs_file* pFile)
 {
     if (pVFS != NULL) {
         return ma_vfs_open(pVFS, pFilePath, openMode, pFile);

@@ -980,6 +980,7 @@ The flags below are used for controlling how the resource manager should handle 
 #define MA_DATA_SOURCE_FLAG_STREAM  0x00000001  /* When set, does not load the entire data source in memory. Disk I/O will happen on job threads. */
 #define MA_DATA_SOURCE_FLAG_DECODE  0x00000002  /* Decode data before storing in memory. When set, decoding is done at the resource manager level rather than the mixing thread. Results in faster mixing, but higher memory usage. */
 #define MA_DATA_SOURCE_FLAG_ASYNC   0x00000004  /* When set, the resource manager will load the data source asynchronously. */
+#define MA_DATA_SOURCE_FLAG_UNINITIALIZED 0x00000008  /* :mc-edit When set, the resource manager data source is left uninitialized. */
 
 
 typedef enum
@@ -1053,7 +1054,7 @@ MA_API ma_result ma_slot_allocator_free(ma_slot_allocator* pAllocator, ma_uint64
 #define MA_NOTIFICATION_COMPLETE    0   /* Operation has fully completed. */
 #define MA_NOTIFICATION_INIT        1   /* Object has been initialized, but operation not fully completed yet. */
 #define MA_NOTIFICATION_FAILED      2   /* Failed to initialize. */
-
+#define MA_NOTIFICATION_SKIPPED_INIT 3  /* :mc-edit - Data source initialization has been skipped. */
 
 /*
 Notification callback for asynchronous operations.
@@ -1182,7 +1183,7 @@ MA_API ma_result ma_job_queue_next(ma_job_queue* pQueue, ma_job* pJob); /* Retur
 #define MA_RESOURCE_MANAGER_MAX_JOB_THREAD_COUNT    64
 #endif
 
-#define MA_RESOURCE_MANAGER_FLAG_NON_BLOCKING       0x00000001  /* Indicates ma_resource_manager_next_job() should not block. Only valid with MA_RESOURCE_MANAGER_NO_JOB_THREAD. */   
+#define MA_RESOURCE_MANAGER_FLAG_NON_BLOCKING       0x00000001  /* Indicates ma_resource_manager_next_job() should not block. Only valid with MA_RESOURCE_MANAGER_NO_JOB_THREAD. */
 
 typedef struct
 {
@@ -1348,6 +1349,7 @@ MA_API ma_result ma_resource_manager_data_stream_get_available_frames(ma_resourc
 /* Data Sources. */
 MA_API ma_result ma_resource_manager_data_source_init(ma_resource_manager* pResourceManager, const char* pName, ma_uint32 flags, ma_async_notification* pNotification, ma_resource_manager_data_source* pDataSource);
 MA_API ma_result ma_resource_manager_data_source_uninit(ma_resource_manager_data_source* pDataSource);
+MA_API ma_bool32 ma_resource_manager_data_source_initialized(ma_resource_manager_data_source* pDataSource); // :mc-edit new API fn
 MA_API ma_result ma_resource_manager_data_source_read_pcm_frames(ma_resource_manager_data_source* pDataSource, void* pFramesOut, ma_uint64 frameCount, ma_uint64* pFramesRead);
 MA_API ma_result ma_resource_manager_data_source_seek_to_pcm_frame(ma_resource_manager_data_source* pDataSource, ma_uint64 frameIndex);
 MA_API ma_result ma_resource_manager_data_source_map(ma_resource_manager_data_source* pDataSource, void** ppFramesOut, ma_uint64* pFrameCount);
@@ -1655,7 +1657,7 @@ MA_API void ma_engine_data_callback(ma_engine* pEngine, void* pOutput, const voi
 
 MA_API ma_result ma_engine_start(ma_engine* pEngine);
 MA_API ma_result ma_engine_stop(ma_engine* pEngine);
-MA_API ma_result ma_engine_started(ma_engine* pEngine);
+MA_API ma_result ma_engine_started(ma_engine* pEngine); // :mc-edit New API fn
 MA_API ma_result ma_engine_set_volume(ma_engine* pEngine, float volume);
 MA_API ma_result ma_engine_set_gain_db(ma_engine* pEngine, float gainDB);
 
@@ -4204,7 +4206,8 @@ MA_API ma_result ma_async_notification_signal(ma_async_notification* pNotificati
 
 static void ma_async_notification_event__on_signal(ma_async_notification* pNotification, int code)
 {
-    if (code == MA_NOTIFICATION_COMPLETE || code == MA_NOTIFICATION_FAILED) {
+    // :mc-edit
+    if (code == MA_NOTIFICATION_COMPLETE || code == MA_NOTIFICATION_FAILED || code == MA_NOTIFICATION_SKIPPED_INIT) { 
         ma_async_notification_event_signal((ma_async_notification_event*)pNotification);
     }
 }
@@ -5796,7 +5799,8 @@ MA_API ma_result ma_resource_manager_data_buffer_get_length_in_pcm_frames(ma_res
 
 MA_API ma_result ma_resource_manager_data_buffer_result(const ma_resource_manager_data_buffer* pDataBuffer)
 {
-    if (pDataBuffer == NULL) {
+    // :mc-edit verify that the pNode exists too.
+    if ((pDataBuffer == NULL) || (pDataBuffer->pNode == NULL)) {
         return MA_INVALID_ARGS;
     }
 
@@ -6113,6 +6117,11 @@ MA_API ma_result ma_resource_manager_data_stream_uninit(ma_resource_manager_data
 
     if (pDataStream == NULL) {
         return MA_INVALID_ARGS;
+    }
+
+    /* :mc-edit Bail early if already unintialized. */
+    if (pDataStream->result == MA_UNAVAILABLE) {
+        return MA_SUCCESS;
     }
 
     /* The first thing to do is set the result to unavailable. This will prevent future page decoding. */
@@ -6552,7 +6561,12 @@ MA_API ma_result ma_resource_manager_data_stream_get_available_frames(ma_resourc
     return MA_SUCCESS;
 }
 
-
+// :mc-edit new API fn
+MA_API ma_bool32 ma_resource_manager_data_source_initialized(ma_resource_manager_data_source* pDataSource) {
+    ma_result dataSourceResult = ma_resource_manager_data_source_result(pDataSource);
+    ma_bool32 result = (dataSourceResult == MA_SUCCESS) || (dataSourceResult == MA_BUSY);
+    return result;
+}
 
 MA_API ma_result ma_resource_manager_data_source_init(ma_resource_manager* pResourceManager, const char* pName, ma_uint32 flags, ma_async_notification* pNotification, ma_resource_manager_data_source* pDataSource)
 {
@@ -6568,12 +6582,29 @@ MA_API ma_result ma_resource_manager_data_source_init(ma_resource_manager* pReso
 
     pDataSource->flags = flags;
 
-    /* The data source itself is just a data stream or a data buffer. */
-    if ((flags & MA_DATA_SOURCE_FLAG_STREAM) != 0) {
-        return ma_resource_manager_data_stream_init(pResourceManager, pName, flags, pNotification, &pDataSource->stream);
-    } else {
-        return ma_resource_manager_data_buffer_init(pResourceManager, pName, flags, pNotification, &pDataSource->buffer);
+    if ((flags & MA_DATA_SOURCE_FLAG_UNINITIALIZED) == 0) { // :mc-edit 
+        /* The data source itself is just a data stream or a data buffer. */
+        if ((flags & MA_DATA_SOURCE_FLAG_STREAM) != 0) {
+            return ma_resource_manager_data_stream_init(pResourceManager, pName, flags, pNotification, &pDataSource->stream);
+        } else {
+            return ma_resource_manager_data_buffer_init(pResourceManager, pName, flags, pNotification, &pDataSource->buffer);
+        }
     }
+    // :mc-edit
+    else { 
+        if ((flags & MA_DATA_SOURCE_FLAG_STREAM) != 0) {
+            pDataSource->stream.result = MA_UNAVAILABLE;
+        } else {
+            if (pDataSource->buffer.pNode != NULL) {
+                pDataSource->buffer.pNode->result = MA_UNAVAILABLE;
+            }
+        }
+        if (pNotification != NULL) {
+            ma_async_notification_signal(pNotification, MA_NOTIFICATION_SKIPPED_INIT);
+        }
+    }
+
+    return MA_SUCCESS;
 }
 
 MA_API ma_result ma_resource_manager_data_source_uninit(ma_resource_manager_data_source* pDataSource)
@@ -6582,12 +6613,22 @@ MA_API ma_result ma_resource_manager_data_source_uninit(ma_resource_manager_data
         return MA_INVALID_ARGS;
     }
 
-    /* All we need to is uninitialize the underlying data buffer or data stream. */
-    if ((pDataSource->flags & MA_DATA_SOURCE_FLAG_STREAM) != 0) {
-        return ma_resource_manager_data_stream_uninit(&pDataSource->stream);
-    } else {
-        return ma_resource_manager_data_buffer_uninit(&pDataSource->buffer);
+    // :mc-edit
+    if (!ma_resource_manager_data_source_initialized(pDataSource)) {
+        return MA_SUCCESS;
     }
+
+    ma_result result; // :mc-edit check result before setting the uninit flag.
+
+    /* All we need to do is uninitialize the underlying data buffer or data stream. */
+    if ((pDataSource->flags & MA_DATA_SOURCE_FLAG_STREAM) != 0) {
+        result = ma_resource_manager_data_stream_uninit(&pDataSource->stream);
+    } else {
+        // :mc-edit The underlying data buffer may still exist because other sounds are referencing it.
+        result = ma_resource_manager_data_buffer_uninit(&pDataSource->buffer);
+    }
+
+    return result;
 }
 
 MA_API ma_result ma_resource_manager_data_source_read_pcm_frames(ma_resource_manager_data_source* pDataSource, void* pFramesOut, ma_uint64 frameCount, ma_uint64* pFramesRead)
@@ -9470,11 +9511,12 @@ MA_API void ma_sound_uninit(ma_sound* pSound)
     */
     ma_sound_mix_wait(pSound);
 
-
     /* Once the sound is detached from the group we can guarantee that it won't be referenced by the mixer thread which means it's safe for us to destroy the data source. */
 #ifndef MA_NO_RESOURCE_MANAGER
-    if (pSound->ownsDataSource) {
-        ma_resource_manager_data_source_uninit(&pSound->resourceManagerDataSource);
+    // :mc-edit proceed when the data source hasn't already been uninitialized.
+    if (pSound->ownsDataSource && pSound->pDataSource) {
+        ma_resource_manager_data_source *pDataSource = &pSound->resourceManagerDataSource;
+        ma_resource_manager_data_source_uninit(pDataSource); /* :mc-edit Will only uninit if the data source is initialized. */
         pSound->pDataSource = NULL;
     }
 #else

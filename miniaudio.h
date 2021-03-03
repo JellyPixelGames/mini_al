@@ -5810,6 +5810,8 @@ IMPLEMENTATION
 #ifndef miniaudio_c
 #define miniaudio_c
 
+static ma_uint32 mc_audio_thread_count; // :mc-edit track thread count so that the platform layer can verify that we don't have more threads than expected.
+
 #include <assert.h>
 #include <limits.h> /* For INT_MAX */
 #include <math.h>   /* sin(), etc. */
@@ -9077,6 +9079,8 @@ static ma_result ma_thread_create(ma_thread* pThread, ma_thread_priority priorit
     if (pThread == NULL || entryProc == NULL) {
         return MA_FALSE;
     }
+
+    ++mc_audio_thread_count; // :mc-edit
 
 #ifdef MA_WIN32
     return ma_thread_create__win32(pThread, priority, stackSize, entryProc, pData);
